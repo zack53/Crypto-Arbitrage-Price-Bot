@@ -33,5 +33,8 @@ When deriving a price, you should always take into account the decimals used on 
 A single swap guide can be found at the location https://docs.uniswap.org/protocol/guides/swaps/single-swaps.
 
 ## Sushi Swp API
+https://docs.sushi.com/
+
+https://dev.sushi.com/
 
 ## Pancake Swap API
