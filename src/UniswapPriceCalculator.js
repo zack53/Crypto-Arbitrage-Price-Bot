@@ -44,7 +44,7 @@ async function getPoolObservation() {
     }
 }
 
-async function uniswapGetSqrtPrice(token0Dec, token1Dec, poolContract){
+async function uniswapGetSqrtPrice(token0Dec, token1Dec, poolContract, token0Sym, token1Sym){
     //Get slot0 function on the pool contract
     //where the sqrtPriceX96 is stored.
     let results = await poolContract.methods.slot0().call()
@@ -56,14 +56,15 @@ async function uniswapGetSqrtPrice(token0Dec, token1Dec, poolContract){
     //Get token0 by dividing Q192 / ratioX96 and shifting decimal 
     //values of the coins to put in human readable format.
     let price2 =  Q192.dividedBy(ratioX96).shiftedBy(token1Dec-token0Dec)
-    console.log(price.toFixed(8))
-    console.log(price2.toFixed(8))
+    console.log('-----------------------------------------------------')
+    console.log(`${token0Sym}: ${price.toFixed(8)} / ${token1Sym}: ${price2.toFixed(8)}`)
+    console.log('-----------------------------------------------------')
     return results
 }
 let main = async () => {
-    await uniswapGetSqrtPrice(8,18,UniswapV3PoolWETHtoWBTC)
-    await uniswapGetSqrtPrice(18,6,UniswapV3PoolWETHtoUSDT)
-    await uniswapGetSqrtPrice(8,6,UniswapV3PoolWBTCtoUSDT)
+    await uniswapGetSqrtPrice(8,18,UniswapV3PoolWETHtoWBTC,'WBTC','WETH')
+    await uniswapGetSqrtPrice(18,6,UniswapV3PoolWETHtoUSDT,'WETH','USDT')
+    await uniswapGetSqrtPrice(8,6,UniswapV3PoolWBTCtoUSDT,'WBTC','USDT')
     process.exit()
 }
 
