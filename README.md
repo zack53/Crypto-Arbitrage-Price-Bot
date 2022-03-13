@@ -1,6 +1,6 @@
 
 
-# Starting to build a Flash Loan bot with these three exchanges with Uniswap, Pancake Swap, and Sushi Swap.
+# Starting to build a Flash Loan bot with these three exchanges Uniswap, Pancake Swap, and Sushi Swap.
     https://gadgets360.com/cryptocurrency/opinion/defi-decentralised-finance-exchange-dex-top-5-2645666
 
 ## Starting out with a few popular pairs
