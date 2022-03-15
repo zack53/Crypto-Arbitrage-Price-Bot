@@ -55,16 +55,16 @@ async function uniswapGetSqrtPrice(token0Dec, token1Dec, poolContract, token0Sym
     let price = ratioX96.dividedBy(Q192).shiftedBy(token0Dec-token1Dec)
     //Get token0 by dividing Q192 / ratioX96 and shifting decimal 
     //values of the coins to put in human readable format.
-    let price2 =  Q192.dividedBy(ratioX96).shiftedBy(token1Dec-token0Dec)
-    console.log('-----------------------------------------------------')
-    console.log(`${token0Sym}: ${price.toFixed(8)} / ${token1Sym}: ${price2.toFixed(8)}`)
-    console.log('-----------------------------------------------------')
-    return results
+    //let price2 =  Q192.dividedBy(ratioX96).shiftedBy(token1Dec-token0Dec)
+    return `${token1Sym}/${token0Sym}: ${price.toFixed(8)}`
 }
 let main = async () => {
-    await uniswapGetSqrtPrice(8,18,UniswapV3PoolWETHtoWBTC,'WBTC','WETH')
-    await uniswapGetSqrtPrice(18,6,UniswapV3PoolWETHtoUSDT,'WETH','USDT')
-    await uniswapGetSqrtPrice(8,6,UniswapV3PoolWBTCtoUSDT,'WBTC','USDT')
+    let value1 = await uniswapGetSqrtPrice(8,18,UniswapV3PoolWETHtoWBTC,'WBTC','WETH')
+    let value2 = await uniswapGetSqrtPrice(18,6,UniswapV3PoolWETHtoUSDT,'WETH','USDT')
+    let value3 = await uniswapGetSqrtPrice(8,6,UniswapV3PoolWBTCtoUSDT,'WBTC','USDT')
+    console.log('-----------------------------------------------------')
+    console.log(`${value1} | ${value2} | ${value3}`)
+    console.log('-----------------------------------------------------')
     process.exit()
 }
 
