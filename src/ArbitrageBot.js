@@ -13,8 +13,12 @@ const web3 = new Web3(new HDWalletProvider(process.env.PRIVATE_KEY,process.env.R
 let uniswapPriceCalc = new UniswapV3PriceCalculator(web3)
 let sushiSwapPriceCalc = new SushiSwapPriceCalculator(web3)
 let main = async () => {
-    await uniswapPriceCalc.main()
-    await sushiSwapPriceCalc.main()
+    let {uniPrice, uniPrice2, uniPice3} = await uniswapPriceCalc.main()
+    let {sushiPrice, sushiPrice2, sushiPrice3} = await sushiSwapPriceCalc.main()
+    // results = await sushiSwapPriceCalc.getAllPairs()
+    // for(key in results){
+    //     console.log(key)
+    // }
     process.exit()
 }
 

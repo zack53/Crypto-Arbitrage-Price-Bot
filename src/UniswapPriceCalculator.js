@@ -54,15 +54,16 @@ class UniswapV3PriceCalculator{
         //Get token0 by dividing Q192 / ratioX96 and shifting decimal 
         //values of the coins to put in human readable format.
         //let price2 =  this.Q192.dividedBy(ratioX96).shiftedBy(token1Dec-token0Dec)
-        return `${token1Sym}/${token0Sym}: ${price.toFixed(8)}`
+        return price
     }
     async main(){
         let value1 = await this.uniswapGetSqrtPrice(8,18,this.UniswapV3PoolWETHtoWBTC,'WBTC','WETH')
         let value2 = await this.uniswapGetSqrtPrice(18,6,this.UniswapV3PoolWETHtoUSDT,'WETH','USDT')
         let value3 = await this.uniswapGetSqrtPrice(8,6,this.UniswapV3PoolWBTCtoUSDT,'WBTC','USDT')
         console.log('-------------------------------Uniswap V3--------------------------------------')
-        console.log(`${value1} | ${value2} | ${value3}`)
+        console.log(`WETH/WBTC: ${value1.toFixed(8)} | USDT/WETH: ${value2.toFixed(8)} | USDT/WBTC: ${value3.toFixed(8)}`)
         console.log('-------------------------------------------------------------------------------')
+        return {'uniPrice' : value1.toNumber(), 'uniPrice2' : value2.toNumber(), 'uniPrice3' : value3.toNumber()}
     }
 }
 
