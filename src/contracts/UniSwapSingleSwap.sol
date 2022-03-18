@@ -4,8 +4,7 @@ pragma abicoder v2;
 
 import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
 import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
-//https://docs.uniswap.org/protocol/guides/swaps/single-swaps
-//follow guide to build simple swapping mechanism
+
 contract UniSwapSingleSwap { 
     // For the scope of these swap examples,
     // we will detail the design considerations when using
@@ -35,10 +34,6 @@ contract UniSwapSingleSwap {
     /// @param amountIn The exact amount of WBTC that will be swapped for WETH9.
     /// @return amountOut The amount of WETH9 received.
     function swapExactInputSingle(uint256 amountIn, uint256 amountOutMinimum, address token0, address token1, uint24 poolFee) external returns (uint256 amountOut) {
-        // msg.sender must approve this contract
-
-        // Transfer the specified amount of WBTC to this contract.
-        TransferHelper.safeTransferFrom(token0, msg.sender, address(this), amountIn);
 
         // Approve the router to spend WBTC.
         TransferHelper.safeApprove(token0, address(swapRouter), amountIn);

@@ -6,7 +6,7 @@ async function main() {
 
   // We get the contract to deploy
   const UniSwapSingleSwap = await ethers.getContractFactory("UniSwapSingleSwap");
-  const uniSwapSingleSwap = await UniSwapSingleSwap.deploy("0x1F98431c8aD98523631AE4a59f267346ea31F984");
+  const uniSwapSingleSwap = await UniSwapSingleSwap.deploy("0xE592427A0AEce92De3Edee1F18E0157C05861564");
 
   console.log("Greeter deployed to:", greeter.address);
 

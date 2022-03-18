@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.0+commit.c7dfd78e"
+		"version": "0.8.6+commit.11564f7e"
 	},
 	"language": "Solidity",
 	"output": {
@@ -98,7 +98,7 @@
 		"compilationTarget": {
 			"src/contracts/UniSwapSingleSwap.sol": "UniSwapSingleSwap"
 		},
-		"evmVersion": "istanbul",
+		"evmVersion": "berlin",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
@@ -143,11 +143,11 @@
 			]
 		},
 		"src/contracts/UniSwapSingleSwap.sol": {
-			"keccak256": "0x1c3bf2de9655b767295cde5c336e0caa5e549ab1e2fc5fb93ec4c00461b02b4a",
+			"keccak256": "0x9beedefb4dce140669dfb33c3eac3fcd5a71d3d1f23188dccc3348a50ae5502c",
 			"license": "GPL-2.0-or-later",
 			"urls": [
-				"bzz-raw://1247aaeea361c347c666c5c739b891e8c3e73cb19194fcc434b48aecb22c2250",
-				"dweb:/ipfs/QmXjzKW7bdNp3ujzDNmxLfwuN4J4oX2ifW1fYtYZUuc5nc"
+				"bzz-raw://20a6c8337c355172305407c527718d58ee8a0094e20a193b0af75cb964a77310",
+				"dweb:/ipfs/QmR2m71fUJNTF4sqndEzoAMybsnogSbNiDLfG6Yiw78A9t"
 			]
 		}
 	},
