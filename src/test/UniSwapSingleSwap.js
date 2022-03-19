@@ -34,9 +34,13 @@ describe("UniSwapSingleSwap contract", function () {
       await wrapEth(wethAmountToTransfer, accounts[0])
       //Sends WETH to the deployed contract and
       //checks the results.
-      await sendWrapEth(wethAmountToTransfer,uniSwapSingleSwap.address, accounts[0])
-      let contractWethBal = await WETHContract.methods.balanceOf(uniSwapSingleSwap.address).call()
-      assert.equal(web3.utils.fromWei(contractWethBal,'ether'),wethAmountToTransfer)
+
+      //await sendWrapEth(wethAmountToTransfer,uniSwapSingleSwap.address, accounts[0])
+      //let contractWethBal = await WETHContract.methods.balanceOf(uniSwapSingleSwap.address).call()
+      //assert.equal(web3.utils.fromWei(contractWethBal,'ether'),wethAmountToTransfer)
+
+      await WETHContract.methods.approve(uniSwapSingleSwap.address, web3.utils.toWei(wethAmountToTransfer.toString(),'ether')).send({from: accounts[0]})
+
       //The link at the top of this file describes how to override 
       //the from value when dealing with transactions using truffle contracts.
       //I am sending the wethAmountToTransfer to the contract to be swapped on
