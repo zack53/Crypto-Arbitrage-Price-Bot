@@ -43,7 +43,10 @@ describe( "AaveFlashLoan contract", function () {
       //I am sending the wethAmountToTransfer to the contract to be swapped on
       //UniSwap V3 Pool for WBTC. The WBTC is then transferred back to the account
       //that sent the request.
-      await aaveFlashLoan.myFlashLoanCall(WETH, WBTC, web3.utils.toWei(wethAmountToTransfer.toString(),'ether'), 0, 500, 5000000000, {from: accounts[0]})
+      await aaveFlashLoan.myFlashLoanCall(WETH, WBTC, 1, 500, web3.utils.toWei(wethAmountToTransfer.toString(),'ether'), 0, 5000000000, {from: accounts[0]})
+
+      wethContractBalAfter = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+      console.log(web3.utils.fromWei(wethContractBalAfter,'ether'))
     })
 
    });

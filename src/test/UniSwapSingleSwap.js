@@ -46,7 +46,9 @@ describe("UniSwapSingleSwap contract", function () {
       //I am sending the wethAmountToTransfer to the contract to be swapped on
       //UniSwap V3 Pool for WBTC. The WBTC is then transferred back to the account
       //that sent the request.
-      await uniSwapSingleSwap.swapExactInputSingle(web3.utils.toWei(wethAmountToTransfer.toString(),'ether'),0,WETH,WBTC,500, {from: accounts[0]})
+      let amountOut = await uniSwapSingleSwap.swapExactInputSingle(web3.utils.toWei(wethAmountToTransfer.toString(),'ether'),0,WETH,WBTC,500, {from: accounts[0]})
+      
+      //console.log(amountOut)
       let WBTCBal = await WBTCContract.methods.balanceOf(accounts[0]).call()
       assert.notEqual(WBTCBal/10**8, 0)
     })

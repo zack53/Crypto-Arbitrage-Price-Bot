@@ -4,17 +4,6 @@
   "sourceName": "contracts/FlashLoanReceiverBase.sol",
   "abi": [
     {
-      "inputs": [
-        {
-          "internalType": "contract ILendingPoolAddressesProvider",
-          "name": "provider",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
       "inputs": [],
       "name": "ADDRESSES_PROVIDER",
       "outputs": [
