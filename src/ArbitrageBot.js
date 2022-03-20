@@ -42,13 +42,15 @@ const WETHContract = new web3.eth.Contract(WETHABI, WETH)
 const WBTCContract = new web3.eth.Contract(WETHABI, WBTC)
 
 let main = async () => {
-    toAddress = '0x4bf010f1b9beDA5450a8dD702ED602A104ff65EE'
+    toAddress = '0x0ed64d01D0B4B655E410EF1441dD677B695639E7'
     let uniswapSingleSwapContract = new web3.eth.Contract(UniSwapSingleSwap['abi'], toAddress)
+    let wethAmountToTransfer = 15
     await getWalletEthBalance(process.env.ACCOUNT)
-    await wrapEth(15,WETHContract)
-    await sendWrapEth(15,toAddress,WETHContract)
+    await wrapEth(wethAmountToTransfer,WETHContract)
+    await WETHContract.methods.approve(toAddress, web3.utils.toWei(wethAmountToTransfer.toString(),'ether')).send({from:process.env.ACCOUNT})
+    //await sendWrapEth(15,toAddress,WETHContract)
     try{
-        await uniswapSingleSwapContract.methods.swapExactInputSingle(web3.utils.toWei('15','ether'),0,WETH,WBTC,500).send({from: process.env.ACCOUNT})
+        await uniswapSingleSwapContract.methods.swapExactInputSingle(web3.utils.toWei(wethAmountToTransfer.toString(),'ether'),0,WETH,WBTC,500).send({from: process.env.ACCOUNT})
     } catch(error){
         console.log(error)
     }
