@@ -30,7 +30,7 @@ describe( "AaveFlashLoan contract", function () {
        assert.equal(await aaveFlashLoan.provider(),'0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5')
      });
 
-    it('Should borrow WETH', async function () {
+     it('Should borrow WETH', async function () {
       let wethAmountToTransfer = 15
       //Send ETH to WETH contract in return for WETH
       await wrapEth(wethAmountToTransfer, accounts[0])
@@ -44,8 +44,37 @@ describe( "AaveFlashLoan contract", function () {
       //UniSwap V3 Pool for WBTC. The WBTC is then transferred back to the account
       //that sent the request.
       await aaveFlashLoan.myFlashLoanCall(WETH, WBTC, 1, 500, web3.utils.toWei(wethAmountToTransfer.toString(),'ether'), 0, 5000000000, {from: accounts[0]})
-      wethContractBalAfter = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
-      console.log(web3.utils.fromWei(wethContractBalAfter,'ether'))
+      let wethContractBalAfter = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+      assert.notEqual(wethContractBalAfter, 0)
+    })
+
+    it('Should fail to withdraw all WETH token if not owner.', async function () {
+      let wethContractBal = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+      if(wethContractBal > 0){
+        try{
+          await aaveFlashLoan.withdrawERC20Token(WETH, {from: accounts[1]});
+        }catch(error){}
+      }
+      let wethContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+      assert.notEqual(wethContractBalAfterWithdraw, 0)
+    })
+
+    it('Should withdraw all WETH token.', async function () {
+      let wethContractBal = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+      if(wethContractBal > 0){
+        await aaveFlashLoan.withdrawERC20Token(WETH);
+      }
+      let wethContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+      assert.equal(wethContractBalAfterWithdraw, 0)
+    })
+    
+    it('Should withdraw all WBTC token.', async function () {
+      let wbtcContractBal = await WBTCContract.methods.balanceOf(aaveFlashLoan.address).call()
+      if(wbtcContractBal > 0){
+        await aaveFlashLoan.withdrawERC20Token(WBTC);
+      }
+      let wbtcContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+      assert.equal(wbtcContractBalAfterWithdraw, 0)
     })
 
    });

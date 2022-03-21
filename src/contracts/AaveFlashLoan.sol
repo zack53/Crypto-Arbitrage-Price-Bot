@@ -16,16 +16,23 @@ import "hardhat/console.sol";
  */
 contract AaveFlashLoan is FlashLoanReceiverBase {
     ILendingPoolAddressesProvider public provider;
-    address lendingPoolAddr;
+    address immutable lendingPoolAddr;
+    address public immutable owner;
+    ISwapRouter constant uniSwapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    IUniswapV2Router02 constant sushiRouter = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
-    ISwapRouter uniSwapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
-    IUniswapV2Router02 sushiRouter = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-
-    // intantiate lending pool addresses provider and get lending pool address
+    // Intantiate lending pool addresses provider and get lending pool address
     constructor(ILendingPoolAddressesProvider _addressProvider) FlashLoanReceiverBase(_addressProvider) public {
         provider = _addressProvider;
         lendingPoolAddr = provider.getLendingPool();
+        owner = address(msg.sender);
     }
+    // Modifies functions to only be called by address that
+    // deployed this contract.
+    modifier onlyOwner{
+        require(address(msg.sender) == owner);
+        _;
+    }  
     /**
         This function is called after your contract has received the flash loaned amount
      */
@@ -57,11 +64,11 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
             uint amountOwing = amounts[i] + premiums[i];
             TransferHelper.safeApprove(assets[i], address(LENDING_POOL), amountOwing);
         }
-        
+        //sendTokenAmount(assets[0]);
         return true;
     }
     
-    function myFlashLoanCall(address token0, address token1, uint8 direction, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) public {
+    function myFlashLoanCall(address token0, address token1, uint8 direction, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) public onlyOwner {
         address receiverAddress = address(this);
 
         address[] memory assets = new address[](1);
@@ -158,7 +165,6 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         path[1] = token1;
         sushiSwapAmountOut = sushiSwapExactInputSingle(amountIn, amountOut, path, deadline);
     }
-
     //Implementing amountOut 0 for testing.
     //Need to ensure that the minimum amountOut is the amountIn.
     function callSushiSwapSingleSwapAfter(bytes memory params, uint256 currentAmount) internal {
@@ -167,5 +173,11 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         path[0] = token1;
         path[1] = token0;
         sushiSwapExactInputSingle(currentAmount, 0, path, deadline);
+    }
+    //Function to withdraw any ERC20 token.
+    function withdrawERC20Token(address token) external onlyOwner returns(uint256 currentAmount){
+        currentAmount = IERC20(token).balanceOf(address(this));
+        require(currentAmount > 0, 'Contract does not have ERC20 token.');
+        TransferHelper.safeTransfer(token, owner, currentAmount);
     }
 }
