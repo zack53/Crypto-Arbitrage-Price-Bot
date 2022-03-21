@@ -3,7 +3,7 @@ pragma abicoder v2;
 
 import { FlashLoanReceiverBase } from "./FlashLoanReceiverBase.sol";
 import { ILendingPool, ILendingPoolAddressesProvider } from "./Interfaces.sol";
-import "./UniSwapSingleSwap.sol";
+import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 import "./SushiSwapSingleSwap.sol";
 
 import "hardhat/console.sol";
@@ -17,7 +17,7 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
     ILendingPoolAddressesProvider public provider;
     address lendingPoolAddr;
 
-    UniSwapSingleSwap uniSwapSingleSwap = new UniSwapSingleSwap(ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564));
+    ISwapRouter uniSwapSingleSwap = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     SushiSwapSingleSwap sushiSwapSingleSwap = new SushiSwapSingleSwap(IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D));
 
     // intantiate lending pool addresses provider and get lending pool address
@@ -104,11 +104,30 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         }
     }
 
+    function uniSwapExactInputSingle(uint256 amountIn, uint256 amountOutMinimum, address token0, address token1, uint24 poolFee) internal returns (uint256 amountOut) {
+        // Approve the router to spend WBTC.
+        TransferHelper.safeApprove(token0, address(uniSwapSingleSwap), amountIn);
+
+        // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
+        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
+        ISwapRouter.ExactInputSingleParams memory params =
+            ISwapRouter.ExactInputSingleParams({
+                tokenIn: token0,
+                tokenOut: token1,
+                fee: poolFee,
+                recipient: address(this),
+                deadline: block.timestamp,
+                amountIn: amountIn,
+                amountOutMinimum: amountOutMinimum,
+                sqrtPriceLimitX96: 0
+            });
+
+        // The call to `exactInputSingle` executes the swap.
+        amountOut = uniSwapSingleSwap.exactInputSingle(params);
+    }
     function callUniswapSingleSwap(bytes memory params) internal returns (uint256 uniSwapAmountOut){
         (address token0, address token1, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint24, uint256, uint256, uint256));
-
-        TransferHelper.safeApprove(token0, address(uniSwapSingleSwap), amountIn);
-        uniSwapAmountOut = uniSwapSingleSwap.swapExactInputSingle(amountIn, amountOut, token0, token1, poolFee);
+        uniSwapAmountOut = uniSwapExactInputSingle(amountIn, amountOut, token0, token1, poolFee);
         console.log('Inside UniSwap Single Swap Call');
         console.log(uniSwapAmountOut);
     }
@@ -117,8 +136,7 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
     //Need to ensure that the minimum amountOut is the amountIn.
     function callUniswapSingleSwapAfter(bytes memory params, uint256 currentAmount) internal {
         (address token0, address token1, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint24, uint256, uint256, uint256));
-        TransferHelper.safeApprove(token1, address(uniSwapSingleSwap), currentAmount);
-        uniSwapSingleSwap.swapExactInputSingle(currentAmount, 0, token1, token0, poolFee);
+        uniSwapExactInputSingle(currentAmount, 0, token1, token0, poolFee);
     }
 
     function callSushiSwapSingleSwap(bytes memory params) internal returns (uint256[] memory sushiSwapAmountOut){
@@ -139,6 +157,7 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         path[0] = token1;
         path[1] = token0;
         console.log(currentAmount);
+        console.log(IERC20(token1).balanceOf(address(this)));
         sushiSwapSingleSwap.swapExactInputSingle(currentAmount, 0, path, address(this), deadline);
     }
 }

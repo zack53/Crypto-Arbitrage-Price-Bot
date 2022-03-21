@@ -33,7 +33,7 @@ contract UniSwapSingleSwap {
     /// @dev The calling address must approve this contract to spend at least `amountIn` worth of its WBTC for this function to succeed.
     /// @param amountIn The exact amount of WBTC that will be swapped for WETH9.
     /// @return amountOut The amount of WETH9 received.
-    function swapExactInputSingle(uint256 amountIn, uint256 amountOutMinimum, address token0, address token1, uint24 poolFee) external returns (uint256 amountOut) {
+    function uniSwapExactInputSingle(uint256 amountIn, uint256 amountOutMinimum, address token0, address token1, uint24 poolFee) external returns (uint256 amountOut) {
 
         // Safe Transfer Tokens
         TransferHelper.safeTransferFrom(token0, msg.sender, address(this), amountIn);
