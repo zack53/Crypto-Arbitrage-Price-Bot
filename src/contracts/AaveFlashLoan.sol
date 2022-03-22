@@ -49,7 +49,7 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         // Your logic goes here.
         //
 
-        callSwapMechanism(params);
+        swapERC20Tokens(params);
         // At the end of your logic above, this contract owes
         // the flashloaned amounts + premiums.
         // Therefore ensure your contract has enough to repay
@@ -97,7 +97,7 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
     /**
         Swapping mechanism that handles directional logic.
     */
-    function callSwapMechanism(bytes calldata params) internal{
+    function swapERC20Tokens(bytes calldata params) internal{
         (address token0, address token1, uint8 direction, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint8, uint24, uint256, uint256, uint256));
 
         address[] memory path = new address[](2);
