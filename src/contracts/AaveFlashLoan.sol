@@ -162,6 +162,12 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         amountOut = sushiRouter.swapExactTokensForTokens(amountIn, amountOutMin, path, address(this), deadline);
     }
     /**
+        TODO: create function to view and a function to transfer ETH
+        
+        // withdraw all ETH
+        msg.sender.call{ value: address(this).balance }("");
+    */
+    /**
         Withdraw provided ERC20 token.
     */
     function withdrawERC20Token(address token) external onlyOwner returns(uint256 currentAmount){

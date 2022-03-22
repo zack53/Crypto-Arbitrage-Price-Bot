@@ -3,7 +3,9 @@ const HDWalletProvider = require('@truffle/hdwallet-provider')
 const Web3 = require('web3')
 const UniswapV3PriceCalculator = require('./UniswapPriceCalculator')
 const SushiSwapPriceCalculator = require('./SushiSwapPriceCalculator')
-
+const AaveFlashLoan = require('./artifacts/contracts/AaveFlashLoan.sol/AaveFlashLoan.json')
+const UniSwapSingleSwap = require('./artifacts/contracts/UniSwapSingleSwap.sol/UniSwapSingleSwap.json')
+const { default: BigNumber } = require('bignumber.js')
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 const WBTC = '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599'
@@ -18,8 +20,14 @@ let getPercentDifference = (price,price2) => {
     return 100-(lowerPrice/higherPrice)*100
 }
 
-let wrapEth = async (amount, wethContract) => {
-    await wethContract.methods.deposit().send({from: process.env.ACCOUNT, value: web3.utils.toWei(amount.toString(), 'ether')})
+let getTokenDirection = (uniSwapPrice,sushiSwapPrice) => {
+    //Assuming uniswap is first price
+    let direction = (uniSwapPrice >= sushiSwapPrice) ? 1 : 0
+    return direction
+}
+
+let wrapEth = async (amount, _from) => {
+    await WETHContract.methods.deposit().send({from: _from, value: web3.utils.toWei(amount.toString(), 'ether')})
 }
 
 let sendWrapEth = async(amount, to, wethContract) => {
@@ -40,6 +48,11 @@ let sushiSwapPriceCalc = new SushiSwapPriceCalculator(web3)
 const WETHContract = new web3.eth.Contract(WETHABI, WETH)
 const WBTCContract = new web3.eth.Contract(WETHABI, WBTC)
 
+const AaveFlashLoandAddress = '0x4bf010f1b9beDA5450a8dD702ED602A104ff65EE'
+const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlashLoandAddress)
+
+const UniSwapSingleSwapAddress = '0x40a42Baf86Fc821f972Ad2aC878729063CeEF403'
+const UniSwapSingleSwapContract = new web3.eth.Contract(UniSwapSingleSwap.abi, UniSwapSingleSwapAddress)
 let main = async () => {
     if (isPolling == false){
 
@@ -62,6 +75,29 @@ let main = async () => {
         }
         if(pair3 >= 1){
             console.log('Trade should execute for pair USDT/WBTC')
+            let direction = getTokenDirection(uniPrice3, sushiPrice3)
+            let wbtcDecimal = await WBTCContract.methods.decimals().call()
+            let amountTOTrade = BigNumber(1).shiftedBy(parseInt(wbtcDecimal))
+            let wethAmountToTransfer = 30
+            //Send ETH to WETH contract in return for WETH
+            await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
+            let wethToTrade = web3.utils.toWei(wethAmountToTransfer.toString(),'ether')
+            //Approve withdrawl of WETH to the contract to be able to pay premium fee during test.
+            await WETHContract.methods.approve(UniSwapSingleSwapAddress, wethToTrade).send({from: process.env.ACCOUNT})
+            await UniSwapSingleSwapContract.methods.swapExactInputSingle(wethToTrade, 0, WETH, WBTC, 500).send({from: process.env.ACCOUNT})
+            let wbtcBalBefore = await WBTCContract.methods.balanceOf(process.env.ACCOUNT).call()
+            await WBTCContract.methods.transfer(AaveFlashLoandAddress, wbtcBalBefore).send({from: process.env.ACCOUNT})
+            console.log(wbtcBalBefore)
+            try{
+                await AaveFlashLoanContract.methods.myFlashLoanCall(WBTC,USDT,direction,3000,amountTOTrade,0,5000000000).send({from: process.env.ACCOUNT})
+            }catch(error){
+                console.log(error)
+            }
+            await AaveFlashLoanContract.methods.withdrawERC20Token(WBTC).send({from: process.env.ACCOUNT})
+            let wbtcBal = await WBTCContract.methods.balanceOf(process.env.ACCOUNT).call()
+            console.log(wbtcBal)
+            let amountMade = (wbtcBal-wbtcBalBefore)/10**8
+            console.log(amountMade)
             process.exit()
         }
         console.log(pair1)
