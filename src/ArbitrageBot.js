@@ -3,7 +3,6 @@ const HDWalletProvider = require('@truffle/hdwallet-provider')
 const Web3 = require('web3')
 const UniswapV3PriceCalculator = require('./UniswapPriceCalculator')
 const SushiSwapPriceCalculator = require('./SushiSwapPriceCalculator')
-const UniSwapSingleSwap = require('./artifacts/contracts/UniSwapSingleSwap.sol/UniSwapSingleSwap.json')
 
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
@@ -42,21 +41,6 @@ const WETHContract = new web3.eth.Contract(WETHABI, WETH)
 const WBTCContract = new web3.eth.Contract(WETHABI, WBTC)
 
 let main = async () => {
-    toAddress = '0x0ed64d01D0B4B655E410EF1441dD677B695639E7'
-    let uniswapSingleSwapContract = new web3.eth.Contract(UniSwapSingleSwap['abi'], toAddress)
-    let wethAmountToTransfer = 15
-    await getWalletEthBalance(process.env.ACCOUNT)
-    await wrapEth(wethAmountToTransfer,WETHContract)
-    await WETHContract.methods.approve(toAddress, web3.utils.toWei(wethAmountToTransfer.toString(),'ether')).send({from:process.env.ACCOUNT})
-    //await sendWrapEth(15,toAddress,WETHContract)
-    try{
-        await uniswapSingleSwapContract.methods.swapExactInputSingle(web3.utils.toWei(wethAmountToTransfer.toString(),'ether'),0,WETH,WBTC,500).send({from: process.env.ACCOUNT})
-    } catch(error){
-        console.log(error)
-    }
-    console.log(await WBTCContract.methods.balanceOf(process.env.ACCOUNT).call()/(10**8))
-    await getWalletEthBalance(process.env.ACCOUNT)
-    process.exit()
     if (isPolling == false){
 
         isPolling = true
@@ -86,10 +70,6 @@ let main = async () => {
 
         isPolling = false
     }
-    // results = await sushiSwapPriceCalc.getAllPairs()
-    // for(key in results){
-    //     console.log(key)
-    // }
 }
 
 
