@@ -100,15 +100,19 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
     function callSwapMechanism(bytes calldata params) internal{
         (address token0, address token1, uint8 direction, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint8, uint24, uint256, uint256, uint256));
 
-        bytes memory neededParams = abi.encode(token0, token1, poolFee, amountIn, amountOut, deadline);
+        address[] memory path = new address[](2);
         if(direction == 1){
             // Call order to go from UniSwap to SushiSwap
-            uint256 uniSwapAmountOut = callUniswapSingleSwap(neededParams);
-            callSushiSwapSingleSwapAfter(neededParams, uniSwapAmountOut);
+            uint256 uniSwapAmountOut = uniSwapExactInputSingle(amountIn, amountOut, token0, token1, poolFee);    
+            path[0] = token1;
+            path[1] = token0;
+            sushiSwapExactInputSingle(uniSwapAmountOut, 0, path, deadline);
         }else{
             // Call order to go from SushiSwap to UniSwap
-            uint256[] memory sushiSwapAmountOut = callSushiSwapSingleSwap(neededParams);
-            callUniswapSingleSwapAfter(neededParams, sushiSwapAmountOut[1]);
+            path[0] = token0;
+            path[1] = token1;
+            uint256[] memory sushiSwapAmountOut = sushiSwapExactInputSingle(amountIn, amountOut, path, deadline);
+            uniSwapExactInputSingle(sushiSwapAmountOut[1], 0, token1, token0, poolFee);
         }
     }
     /**
@@ -136,27 +140,7 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         amountOut = uniSwapRouter.exactInputSingle(params);
     }
     /**
-        Directional function to be used if UniSwap V3 Router
-        should be called first before SushiSwap Router.
-    */
-    function callUniswapSingleSwap(bytes memory params) internal returns (uint256 uniSwapAmountOut){
-        // Decode parameters and send to base UniSwap V3 Swap Router function uniSwapExactInputSingle
-        (address token0, address token1, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint24, uint256, uint256, uint256));
-        uniSwapAmountOut = uniSwapExactInputSingle(amountIn, amountOut, token0, token1, poolFee);
-    }
-    /**
-        Directional function to be used if UniSwap V3 Router
-        should be called second after SushiSwap Router.
-    */
-    // TODO: Implementing amountOut 0 for testing.
-    // Need to ensure that the minimum amountOut is the amountIn.
-    function callUniswapSingleSwapAfter(bytes memory params, uint256 currentAmount) internal {
-        (address token0, address token1, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint24, uint256, uint256, uint256));
-        uniSwapExactInputSingle(currentAmount, 0, token1, token0, poolFee);
-    }
-    /**
-        Directional function to be used if SushiSwap Router
-        should be called first before UniSwap V3 Router.
+        Base function to use SushiSwap Router
     */
     function sushiSwapExactInputSingle(
         uint256 amountIn,
@@ -171,26 +155,6 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
 
         // The call to `exactInputSingle` executes the swap.
         amountOut = sushiRouter.swapExactTokensForTokens(amountIn, amountOutMin, path, address(this), deadline);
-    }
-    function callSushiSwapSingleSwap(bytes memory params) internal returns (uint256[] memory sushiSwapAmountOut){
-        (address token0, address token1, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint24, uint256, uint256, uint256));
-        address[] memory path = new address[](2);
-        path[0] = token0;
-        path[1] = token1;
-        sushiSwapAmountOut = sushiSwapExactInputSingle(amountIn, amountOut, path, deadline);
-    }
-    /**
-        Directional function to be used if SushiSwap Router
-        should be called second after UniSwap V3 Router.
-    */
-    // TODO: Implementing amountOut 0 for testing.
-    // Need to ensure that the minimum amountOut is the amountIn.
-    function callSushiSwapSingleSwapAfter(bytes memory params, uint256 currentAmount) internal {
-        (address token0, address token1, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint24, uint256, uint256, uint256));
-        address[] memory path = new address[](2);
-        path[0] = token1;
-        path[1] = token0;
-        sushiSwapExactInputSingle(currentAmount, 0, path, deadline);
     }
     // Function to withdraw any ERC20 token.
     function withdrawERC20Token(address token) external onlyOwner returns(uint256 currentAmount){
