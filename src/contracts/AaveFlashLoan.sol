@@ -3,9 +3,11 @@ pragma abicoder v2;
 
 import { FlashLoanReceiverBase } from "./FlashLoanReceiverBase.sol";
 import { ILendingPool, ILendingPoolAddressesProvider } from "./Interfaces.sol";
-import "./UniSwapSingleSwap.sol";
-import "./SushiSwapSingleSwap.sol";
+import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
+import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
+import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 
+import "hardhat/console.sol";
 /** 
     !!!
     Never keep funds permanently on your FlashLoanReceiverBase contract as they could be 
@@ -14,16 +16,27 @@ import "./SushiSwapSingleSwap.sol";
  */
 contract AaveFlashLoan is FlashLoanReceiverBase {
     ILendingPoolAddressesProvider public provider;
-    address lendingPoolAddr;
+    address immutable lendingPoolAddr;
+    address public immutable owner;
+    ISwapRouter constant uniSwapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    IUniswapV2Router02 constant sushiRouter = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
 
-    UniSwapSingleSwap uniSwapSingleSwap = new UniSwapSingleSwap(ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564));
-    SushiSwapSingleSwap sushiSwapSingleSwap = new SushiSwapSingleSwap(IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D));
-
-    // intantiate lending pool addresses provider and get lending pool address
+    /**
+        Intantiate lending pool addresses provider and get lending pool address
+    */
     constructor(ILendingPoolAddressesProvider _addressProvider) FlashLoanReceiverBase(_addressProvider) public {
         provider = _addressProvider;
         lendingPoolAddr = provider.getLendingPool();
+        owner = address(msg.sender);
     }
+    /** 
+        Modifies functions to only be called by address that
+        deployed this contract.
+    */
+    modifier onlyOwner{
+        require(address(msg.sender) == owner);
+        _;
+    }  
     /**
         This function is called after your contract has received the flash loaned amount
      */
@@ -33,18 +46,12 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         uint256[] calldata premiums,
         address initiator,
         bytes calldata params
-    )
-        external
-        override
-        returns (bool)
-    {
+        ) external override returns (bool){
 
-        //
         // This contract now has the funds requested.
-        // Your logic goes here.
-        //
+        // Call function to swap tokens.
+        swapERC20Tokens(params);
 
-        callSwapMechanism(params);
         // At the end of your logic above, this contract owes
         // the flashloaned amounts + premiums.
         // Therefore ensure your contract has enough to repay
@@ -53,13 +60,16 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         // Approve the LendingPool contract allowance to *pull* the owed amount
         for (uint i = 0; i < assets.length; i++) {
             uint amountOwing = amounts[i] + premiums[i];
-            IERC20(assets[i]).approve(address(LENDING_POOL), amountOwing);
+            TransferHelper.safeApprove(assets[i], address(LENDING_POOL), amountOwing);
         }
-        
+        //sendTokenAmount(assets[0]);
         return true;
     }
-    
-    function myFlashLoanCall(address token0, address token1, uint8 direction, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) public {
+    /**
+        This is the function that starts the flash loan.
+     */
+    function myFlashLoanCall(address token0, address token1, uint8 direction, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) public onlyOwner {
+        //Building information needed for flash loan
         address receiverAddress = address(this);
 
         address[] memory assets = new address[](1);
@@ -71,11 +81,12 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         // 0 = no debt, 1 = stable, 2 = variable
         uint256[] memory modes = new uint256[](1);
         modes[0] = 0;
-
         address onBehalfOf = address(this);
+        // I am encoding parameters needed for other functions that are called in the
+        // executeOperation call back function.
         bytes memory params = abi.encode(token0, token1, direction, poolFee, amountIn, amountOut, deadline);
         uint16 referralCode = 0;
-
+        //Sends information for the flashLoan
         LENDING_POOL.flashLoan(
             receiverAddress,
             assets,
@@ -86,56 +97,76 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
             referralCode
         );
     }
-
-    function callSwapMechanism(bytes calldata params) internal{
+    /**
+        Swapping mechanism that handles directional logic.
+    */
+    function swapERC20Tokens(bytes calldata params) internal{
         (address token0, address token1, uint8 direction, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint8, uint24, uint256, uint256, uint256));
 
-        bytes memory neededParams = abi.encode(token0, token1, poolFee, amountIn, amountOut, deadline);
+        address[] memory path = new address[](2);
         if(direction == 1){
             // Call order to go from UniSwap to SushiSwap
-            callUniswapSingleSwap(neededParams);
-            callSushiSwapSingleSwapAfter(neededParams);
+            uint256 uniSwapAmountOut = uniSwapExactInputSingle(amountIn, amountOut, token0, token1, poolFee);  
+            // Reverse direction to trade back to original token 
+            path[0] = token1;
+            path[1] = token0;
+            sushiSwapExactInputSingle(uniSwapAmountOut, 0, path, deadline);
         }else{
             // Call order to go from SushiSwap to UniSwap
-            callSushiSwapSingleSwap(neededParams);
-            callUniswapSingleSwapAfter(neededParams);
+            path[0] = token0;
+            path[1] = token1;
+            uint256[] memory sushiSwapAmountOut = sushiSwapExactInputSingle(amountIn, amountOut, path, deadline);  
+            // Reverse direction to trade back to original token 
+            uniSwapExactInputSingle(sushiSwapAmountOut[1], 0, token1, token0, poolFee);
         }
     }
+    /**
+        Base function to use UniSwap V3 Swap Router
+    */
+    function uniSwapExactInputSingle(uint256 amountIn, uint256 amountOutMinimum, address token0, address token1, uint24 poolFee) internal returns (uint256 amountOut) {
+        // Approve the router to spend current token0.
+        TransferHelper.safeApprove(token0, address(uniSwapRouter), amountIn);
 
-    function callUniswapSingleSwap(bytes memory params) internal {
-        (address token0, address token1, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint24, uint256, uint256, uint256));
+        // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
+        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
+        ISwapRouter.ExactInputSingleParams memory params =
+            ISwapRouter.ExactInputSingleParams({
+                tokenIn: token0,
+                tokenOut: token1,
+                fee: poolFee,
+                recipient: address(this),
+                deadline: block.timestamp,
+                amountIn: amountIn,
+                amountOutMinimum: amountOutMinimum,
+                sqrtPriceLimitX96: 0
+            });
 
-        TransferHelper.safeApprove(token0, address(uniSwapSingleSwap), amountIn);
-        uniSwapSingleSwap.swapExactInputSingle(amountIn, amountOut, token0, token1, poolFee);
+        // The call to `exactInputSingle` executes the swap.
+        amountOut = uniSwapRouter.exactInputSingle(params);
     }
+    /**
+        Base function to use SushiSwap Router
+    */
+    function sushiSwapExactInputSingle(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] memory path,
+        uint256 deadline
+        ) internal returns (uint256[] memory amountOut) {
 
-    //Implementing amountOut 0 for testing.
-    //Need to ensure that the minimum amountOut is the amountIn.
-    function callUniswapSingleSwapAfter(bytes memory params) internal {
-        (address token0, address token1, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint24, uint256, uint256, uint256));
-        uint256 currentAmount = IERC20(token1).balanceOf(address(this));
-        TransferHelper.safeApprove(token1, address(uniSwapSingleSwap), currentAmount);
-        uniSwapSingleSwap.swapExactInputSingle(currentAmount, 0, token1, token0, poolFee);
+        // Approve the router to spend WBTC.
+        TransferHelper.safeApprove(path[0], address(sushiRouter), amountIn);
+
+
+        // The call to `exactInputSingle` executes the swap.
+        amountOut = sushiRouter.swapExactTokensForTokens(amountIn, amountOutMin, path, address(this), deadline);
     }
-
-    function callSushiSwapSingleSwap(bytes memory params) internal {
-        (address token0, address token1, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint24, uint256, uint256, uint256));
-        TransferHelper.safeApprove(token0, address(sushiSwapSingleSwap), amountIn);
-        address[] memory path = new address[](2);
-        path[0] = token0;
-        path[1] = token1;
-        sushiSwapSingleSwap.swapExactInputSingle(amountIn, amountOut, path, address(this), deadline);
-    }
-
-    //Implementing amountOut 0 for testing.
-    //Need to ensure that the minimum amountOut is the amountIn.
-    function callSushiSwapSingleSwapAfter(bytes memory params) internal {
-        (address token0, address token1, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint24, uint256, uint256, uint256));
-        uint256 currentAmount = IERC20(token1).balanceOf(address(this));
-        TransferHelper.safeApprove(token1, address(sushiSwapSingleSwap), currentAmount);
-        address[] memory path = new address[](2);
-        path[0] = token1;
-        path[1] = token0;
-        sushiSwapSingleSwap.swapExactInputSingle(currentAmount, 0, path, address(this), deadline);
+    /**
+        Withdraw provided ERC20 token.
+    */
+    function withdrawERC20Token(address token) external onlyOwner returns(uint256 currentAmount){
+        currentAmount = IERC20(token).balanceOf(address(this));
+        require(currentAmount > 0, 'Contract does not have ERC20 token.');
+        TransferHelper.safeTransfer(token, owner, currentAmount);
     }
 }
