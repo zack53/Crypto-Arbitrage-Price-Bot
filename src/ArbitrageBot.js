@@ -65,44 +65,44 @@ let main = async () => {
         let pair2 = getPercentDifference(uniPrice2,sushiPrice2)
         let pair3 = getPercentDifference(uniPrice3,sushiPrice3)
 
-        if(pair1 >= 1){
-            console.log('Trade should execute for pair WETH/WBTC')
-            process.exit()
-        }
-        if(pair2 >= 1){
-            console.log('Trade should execute for pair USDT/WETH')
-            process.exit()
-        }
-        if(pair3 >= 1){
-            console.log('Trade should execute for pair USDT/WBTC')
-            let direction = getTokenDirection(uniPrice3, sushiPrice3)
-            let wbtcDecimal = await WBTCContract.methods.decimals().call()
-            let amountTOTrade = BigNumber(1).shiftedBy(parseInt(wbtcDecimal))
-            let wethAmountToTransfer = 30
-            //Send ETH to WETH contract in return for WETH
-            await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
-            let wethToTrade = web3.utils.toWei(wethAmountToTransfer.toString(),'ether')
-            //Approve withdrawl of WETH to the contract to be able to pay premium fee during test.
-            await WETHContract.methods.approve(UniSwapSingleSwapAddress, wethToTrade).send({from: process.env.ACCOUNT})
-            await UniSwapSingleSwapContract.methods.swapExactInputSingle(wethToTrade, 0, WETH, WBTC, 500).send({from: process.env.ACCOUNT})
-            let wbtcBalBefore = await WBTCContract.methods.balanceOf(process.env.ACCOUNT).call()
-            await WBTCContract.methods.transfer(AaveFlashLoandAddress, wbtcBalBefore).send({from: process.env.ACCOUNT})
-            console.log(wbtcBalBefore)
-            try{
-                await AaveFlashLoanContract.methods.myFlashLoanCall(WBTC,USDT,direction,3000,amountTOTrade,0,5000000000).send({from: process.env.ACCOUNT})
-            }catch(error){
-                console.log(error)
-            }
-            await AaveFlashLoanContract.methods.withdrawERC20Token(WBTC).send({from: process.env.ACCOUNT})
-            let wbtcBal = await WBTCContract.methods.balanceOf(process.env.ACCOUNT).call()
-            console.log(wbtcBal)
-            let amountMade = (wbtcBal-wbtcBalBefore)/10**8
-            console.log(amountMade)
-            process.exit()
-        }
-        console.log(pair1)
-        console.log(pair2)
-        console.log(pair3)
+        // if(pair1 >= 1){
+        //     console.log('Trade should execute for pair WETH/WBTC')
+        //     console.log(pair1)
+        //     process.exit()
+        // }
+        // if(pair2 >= 1){
+        //     console.log('Trade should execute for pair USDT/WETH')
+        //     console.log(pair2)
+        //     process.exit()
+        // }
+        // if(pair3 >= 1){
+        //     console.log('Trade should execute for pair USDT/WBTC')
+        //     console.log(pair3)
+        //     let direction = getTokenDirection(uniPrice3, sushiPrice3)
+        //     let wbtcDecimal = await WBTCContract.methods.decimals().call()
+        //     let amountTOTrade = BigNumber(1).shiftedBy(parseInt(wbtcDecimal))
+        //     let wethAmountToTransfer = 30
+        //     //Send ETH to WETH contract in return for WETH
+        //     await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
+        //     let wethToTrade = web3.utils.toWei(wethAmountToTransfer.toString(),'ether')
+        //     //Approve withdrawl of WETH to the contract to be able to pay premium fee during test.
+        //     await WETHContract.methods.approve(UniSwapSingleSwapAddress, wethToTrade).send({from: process.env.ACCOUNT})
+        //     await UniSwapSingleSwapContract.methods.swapExactInputSingle(wethToTrade, 0, WETH, WBTC, 500).send({from: process.env.ACCOUNT})
+        //     let wbtcBalBefore = await WBTCContract.methods.balanceOf(process.env.ACCOUNT).call()
+        //     await WBTCContract.methods.transfer(AaveFlashLoandAddress, wbtcBalBefore).send({from: process.env.ACCOUNT})
+        //     console.log(wbtcBalBefore)
+        //     try{
+        //         await AaveFlashLoanContract.methods.myFlashLoanCall(WBTC,USDT,direction,3000,amountTOTrade,0,5000000000).send({from: process.env.ACCOUNT})
+        //     }catch(error){
+        //         console.log(error)
+        //     }
+        //     await AaveFlashLoanContract.methods.withdrawERC20Token(WBTC).send({from: process.env.ACCOUNT})
+        //     let wbtcBal = await WBTCContract.methods.balanceOf(process.env.ACCOUNT).call()
+        //     console.log(wbtcBal)
+        //     let amountMade = (wbtcBal-wbtcBalBefore)/10**8
+        //     console.log(amountMade)
+        //     process.exit()
+        // }
 
         isPolling = false
     }
