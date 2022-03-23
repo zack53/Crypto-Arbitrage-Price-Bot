@@ -1,6 +1,32 @@
 require('dotenv').config()
 const BigNumber = require('bignumber.js')
 
+/**
+  https://thegraph.com/hosted-service/subgraph/zippoxer/sushiswap-subgraph-fork?selected=playground
+  https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork
+Query for USDT/WBTC price
+{
+ pairs(
+  where: {
+   id_in: [
+    "0x784178d58b641a4febf8d477a6abd28504273132"
+   ]
+  }
+ ) {
+  id
+  token0Price
+  token0 {
+   symbol
+   decimals
+  }
+  token1Price
+  token1 {
+   symbol
+   decimals
+  }
+ }
+}
+ */
 class SushiSwapPriceCalculator{
     constructor(web3){
         this.web3 = web3
@@ -55,19 +81,37 @@ class SushiSwapPriceCalculator{
         return pairObj
     }
 
+    async calculatePrice(amount, reserve0, reserve1, decimal0, decimal1){
+        let reserveCheck = BigNumber(reserve0).shiftedBy(-decimal0)
+        let reserve0Big = BigNumber(reserve0)
+        let reserve1Big = BigNumber(reserve1)
+        // You will get the amount in reserve1 if the reserve0 is less than 1,
+        // so to calculate price for low liquidity you need to artificially
+        // add liquidity to the amount for a correct price.
+        if(reserveCheck.toNumber() < 1){
+            reserve0Big = reserve0Big.shiftedBy(10)
+            reserve1Big = reserve1Big.shiftedBy(10)
+        }
+        //Passing in amount shifted by decimal0
+        let price = BigNumber(await this.SushiV2Router.methods.getAmountOut(BigNumber(amount).shiftedBy(decimal0), reserve0Big, reserve1Big).call())
+        //Shift left by decimal1 to get the final output.
+        return price.shiftedBy(-decimal1)
+    }
+
     async main(){
         let WETHtoWBTCReserves = await this.WETHtoWBTCSushiPair.methods.getReserves().call()
-        let WETHtoWBTCAmountOut = BigNumber(await this.SushiV2Router.methods.getAmountOut(BigNumber(1).shiftedBy(8),WETHtoWBTCReserves._reserve0,WETHtoWBTCReserves._reserve1).call())
+        let WETHtoWBTCAmountOut = BigNumber(await this.calculatePrice(1,WETHtoWBTCReserves._reserve0,WETHtoWBTCReserves._reserve1,8,18))
 
         let WETHtoUSDTReserves = await this.WETHtoUSDTSushiPair.methods.getReserves().call()
-        let WETHtoUSDTAmountOut = BigNumber(await this.SushiV2Router.methods.getAmountOut(BigNumber(1).shiftedBy(18),WETHtoUSDTReserves._reserve0,WETHtoUSDTReserves._reserve1).call())
+        let WETHtoUSDTAmountOut = BigNumber(await this.calculatePrice(1,WETHtoUSDTReserves._reserve0,WETHtoUSDTReserves._reserve1,18,6))
+ 
 
         let WBTCtoUSDTReserves = await this.WBTCtoUSDTSushiPair.methods.getReserves().call()
-        let WBTCtoUSDTCAmountOut = BigNumber(await this.SushiV2Router.methods.getAmountOut(BigNumber(1).shiftedBy(6),WBTCtoUSDTReserves._reserve1,WBTCtoUSDTReserves._reserve0).call())
+        let WBTCtoUSDTCAmountOut = BigNumber(await this.calculatePrice(1,WBTCtoUSDTReserves._reserve0,WBTCtoUSDTReserves._reserve1,8,6))
 
-        let price = WETHtoWBTCAmountOut.shiftedBy(-18)
-        let price2 = WETHtoUSDTAmountOut.shiftedBy(-6)
-        let price3 = BigNumber(1).dividedBy(WBTCtoUSDTCAmountOut.shiftedBy(-8))
+        let price = WETHtoWBTCAmountOut
+        let price2 = WETHtoUSDTAmountOut
+        let price3 = WBTCtoUSDTCAmountOut
         console.log('------------------------------SushiSwap V2-------------------------------------')
         console.log(`WETH/WBTC: ${price.toFixed(8)} | USDT/WETH: ${price2.toFixed(8)} | USDT/WBTC ${price3.toFixed(8)}`)
         console.log('-------------------------------------------------------------------------------')
