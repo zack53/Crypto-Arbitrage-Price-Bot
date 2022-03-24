@@ -5,6 +5,8 @@ const UniswapV3PriceCalculator = require('./UniswapPriceCalculator')
 const SushiSwapPriceCalculator = require('./SushiSwapPriceCalculator')
 const AaveFlashLoan = require('./artifacts/contracts/AaveFlashLoan.sol/AaveFlashLoan.json')
 const UniSwapSingleSwap = require('./artifacts/contracts/UniSwapSingleSwap.sol/UniSwapSingleSwap.json')
+const SushiSwapSingleSwap = require('./artifacts/contracts/SushiSwapSingleSwap.sol/SushiSwapSingleSwap.json')
+
 const { default: BigNumber } = require('bignumber.js')
 
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
@@ -40,7 +42,45 @@ let getWalletEthBalance = async (address) => {
         console.log(balance)
       })
 }
+let sushiSwapSingleSwapTokens = async (amountIn, amountOutMin, token0, token1, deadline) =>{
+    if(token0 != WETH){
+    }
+    let tokenContract = new web3.eth.Contract(WETHABI, token0)
+    let token1Contract = new web3.eth.Contract(WETHABI, token1)
+    
+    let tokenDecimal = await getTokenDecimal(tokenContract)
+    let amountAdj = BigNumber(amountIn).shiftedBy(tokenDecimal).toString()
+    let token1Decimal = await getTokenDecimal(token1Contract)
+    let amountOutMinAdj = (amountOutMin != 0) ? BigNumber(amountOutMin).shiftedBy(token1Decimal).toString() : '0'
+    let currentBalBefore = await token1Contract.methods.balanceOf(process.env.ACCOUNT).call()
+    await tokenContract.methods.approve(SushiSwapSingleSwapAddress, amountAdj).send({from: process.env.ACCOUNT})
+    await SushiSwapSingleSwapContract.methods.swapExactInputSingle(amountAdj,amountOutMinAdj,[token0,token1],process.env.ACCOUNT,deadline).send({from: process.env.ACCOUNT})
 
+    let currentBal = await token1Contract.methods.balanceOf(process.env.ACCOUNT).call()
+    return BigNumber(currentBal-currentBalBefore).shiftedBy(-1*token1Decimal)
+}
+
+let getTokenDecimal = async (tokenContract) => {
+    return parseInt(await tokenContract.methods.decimals().call())
+}
+let uniSwapSingleSwapTokens = async (amountIn, amountOutMin, token0, token1, poolFee) =>{
+    if(token0 != WETH){
+    }
+    let tokenContract = new web3.eth.Contract(WETHABI, token0)
+    let token1Contract = new web3.eth.Contract(WETHABI, token1)
+
+    let tokenDecimal = await getTokenDecimal(tokenContract)
+    let amountAdj = BigNumber(amountIn).shiftedBy(tokenDecimal).toString()
+    let token1Decimal = await getTokenDecimal(token1Contract)
+    let amountOutMinAdj = (amountOutMin != 0) ? BigNumber(amountOutMin).shiftedBy(token1Decimal).toString() : '0'
+    //Approve withdrawl of WETH to the contract to be able to pay premium fee during test.
+    let currentBalBefore = await token1Contract.methods.balanceOf(process.env.ACCOUNT).call()
+    await tokenContract.methods.approve(UniSwapSingleSwapAddress, amountAdj).send({from: process.env.ACCOUNT})
+    await UniSwapSingleSwapContract.methods.swapExactInputSingle(amountAdj, amountOutMinAdj, token0, token1, poolFee).send({from: process.env.ACCOUNT})
+
+    let currentBal = await token1Contract.methods.balanceOf(process.env.ACCOUNT).call()
+    return BigNumber(currentBal-currentBalBefore).shiftedBy(-1*token1Decimal)
+}
 const web3 = new Web3(new HDWalletProvider(process.env.PRIVATE_KEY,process.env.RPC_URL))
 let uniswapPriceCalc = new UniswapV3PriceCalculator(web3)
 let sushiSwapPriceCalc = new SushiSwapPriceCalculator(web3)
@@ -53,6 +93,9 @@ const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlash
 
 const UniSwapSingleSwapAddress = '0x40a42Baf86Fc821f972Ad2aC878729063CeEF403'
 const UniSwapSingleSwapContract = new web3.eth.Contract(UniSwapSingleSwap.abi, UniSwapSingleSwapAddress)
+
+const SushiSwapSingleSwapAddress = '0x96F3Ce39Ad2BfDCf92C0F6E2C2CAbF83874660Fc'
+const SushiSwapSingleSwapContract = new web3.eth.Contract(SushiSwapSingleSwap.abi, SushiSwapSingleSwapAddress)
 let main = async () => {
     if (isPolling == false){
 
@@ -65,6 +108,18 @@ let main = async () => {
         let pair2 = getPercentDifference(uniPrice2,sushiPrice2)
         let pair3 = getPercentDifference(uniPrice3,sushiPrice3)
 
+        
+        //Wrap some ETH to be used for trading.
+        let wethAmountToTransfer = 30
+        await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
+
+        let amountOut = await uniSwapSingleSwapTokens(1,0,WETH,WBTC,500)
+        let amountOutSushi = await sushiSwapSingleSwapTokens(amountOut,0,WBTC,WETH,5000000000)
+        console.log(amountOut.toFixed(8))
+        console.log(amountOutSushi.toFixed(8))
+        //console.log(amountOutSushi.minus(amountOut).toFixed(8))
+
+        process.exit()
         // if(pair1 >= 1){
         //     console.log('Trade should execute for pair WETH/WBTC')
         //     console.log(pair1)
@@ -107,7 +162,6 @@ let main = async () => {
         isPolling = false
     }
 }
-
 
 let priceMonitor
 let isPolling = false
