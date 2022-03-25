@@ -93,7 +93,7 @@ class SushiSwapPriceCalculator{
             reserve1Big = reserve1Big.shiftedBy(10)
         }
         //Passing in amount shifted by decimal0
-        let price = BigNumber(await this.SushiV2Router.methods.getAmountOut(BigNumber(amount).shiftedBy(decimal0), reserve0Big, reserve1Big).call())
+        let price = BigNumber(await this.SushiV2Router.methods.quote(BigNumber(amount).shiftedBy(decimal0), reserve0Big, reserve1Big).call())
         //Shift left by decimal1 to get the final output.
         return price.shiftedBy(-decimal1)
     }

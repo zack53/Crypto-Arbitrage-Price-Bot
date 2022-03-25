@@ -110,16 +110,17 @@ let main = async () => {
 
         
         //Wrap some ETH to be used for trading.
-        let wethAmountToTransfer = 30
-        await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
+        //let wethAmountToTransfer = 30
+        //await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
 
-        let amountOut = await uniSwapSingleSwapTokens(1,0,WETH,WBTC,500)
-        let amountOutSushi = await sushiSwapSingleSwapTokens(amountOut,0,WBTC,WETH,5000000000)
-        console.log(amountOut.toFixed(8))
-        console.log(amountOutSushi.toFixed(8))
-        //console.log(amountOutSushi.minus(amountOut).toFixed(8))
+        //let amountOut = await uniSwapSingleSwapTokens(1,0,WETH,WBTC,500)
+        //let amountOutSushi = await sushiSwapSingleSwapTokens(amountOut,0,WBTC,WETH,5000000000)
+        //let amountOutSushi = await sushiSwapSingleSwapTokens(1,0,WETH,WBTC,5000000000)
+        //console.log(amountOut.toFixed(8))
+        //console.log(amountOutSushi.toFixed(8))
+        //console.log(amountOutSushi.toFixed(8))
 
-        process.exit()
+        //process.exit()
         // if(pair1 >= 1){
         //     console.log('Trade should execute for pair WETH/WBTC')
         //     console.log(pair1)
