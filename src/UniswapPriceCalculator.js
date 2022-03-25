@@ -18,11 +18,12 @@ class UniswapV3PriceCalculator{
 
         this.WETHtoWBTCPoolAddress = '0x4585FE77225b41b697C938B018E2Ac67Ac5a20c0'
         this.WETHtoUSDTPoolAddress = '0x11b815efB8f581194ae79006d24E0d814B7697F6'
-        this.WBTCtoUSDTPoolAddress = '0x9Db9e0e53058C89e5B94e29621a205198648425B'
+        this.APEToWETHPoolAddress = '0xAc4b3DacB91461209Ae9d41EC517c2B9Cb1B7DAF'
+        this.UNItoWETHPoolAddress = '0x1d42064Fc4Beb5F8aAF85F4617AE8b3b5B8Bd801'
 
         this.UniswapV3PoolWETHtoWBTC = new this.web3.eth.Contract(this.UniswapV3PoolABI, this.WETHtoWBTCPoolAddress)
         this.UniswapV3PoolWETHtoUSDT = new this.web3.eth.Contract(this.UniswapV3PoolABI, this.WETHtoUSDTPoolAddress)
-        this.UniswapV3PoolWBTCtoUSDT = new this.web3.eth.Contract(this.UniswapV3PoolABI, this.WBTCtoUSDTPoolAddress)
+        this.UniswapV3PoolAPEtoWETH = new this.web3.eth.Contract(this.UniswapV3PoolABI, this.APEToWETHPoolAddress)
     }
     async getUniswapPoolAddress (tokenA, tokenB, poolFee) {
         return await this.UniswapV3Factory.methods.getPool(tokenA,tokenB,poolFee).call()
@@ -56,10 +57,26 @@ class UniswapV3PriceCalculator{
         //let price2 =  this.Q192.dividedBy(ratioX96).shiftedBy(token1Dec-token0Dec)
         return price
     }
+
+    async uniswapGetSqrtPriceReversed(token0Dec, token1Dec, poolContract, token0Sym, token1Sym){
+        //Get slot0 function on the pool contract
+        //where the sqrtPriceX96 is stored.
+        let results = await poolContract.methods.slot0().call()
+        //Remove sqrt 
+        let ratioX96 = BigNumber(results.sqrtPriceX96).exponentiatedBy(2)
+        //Get token0 by dividing ratioX96 / Q192 and shifting decimal 
+        //values of the coins to put in human readable format.
+        let price = this.Q192.dividedBy(ratioX96).shiftedBy(token0Dec-token1Dec)
+        //Get token0 by dividing Q192 / ratioX96 and shifting decimal 
+        //values of the coins to put in human readable format.
+        //let price2 =  this.Q192.dividedBy(ratioX96).shiftedBy(token1Dec-token0Dec)
+        return price
+    }
+
     async main(){
         let value1 = await this.uniswapGetSqrtPrice(8,18,this.UniswapV3PoolWETHtoWBTC,'WBTC','WETH')
         let value2 = await this.uniswapGetSqrtPrice(18,6,this.UniswapV3PoolWETHtoUSDT,'WETH','USDT')
-        let value3 = await this.uniswapGetSqrtPrice(8,6,this.UniswapV3PoolWBTCtoUSDT,'WBTC','USDT')
+        let value3 = await this.uniswapGetSqrtPriceReversed(18,18,this.UniswapV3PoolAPEtoWETH,'APE','WETH')
         console.log('-------------------------------Uniswap V3--------------------------------------')
         console.log(`WETH/WBTC: ${value1.toFixed(8)} | USDT/WETH: ${value2.toFixed(8)} | USDT/WBTC: ${value3.toFixed(8)}`)
         console.log('-------------------------------------------------------------------------------')

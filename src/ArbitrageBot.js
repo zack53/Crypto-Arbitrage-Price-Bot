@@ -12,6 +12,7 @@ const { default: BigNumber } = require('bignumber.js')
 const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 const WBTC = '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599'
 const USDT = '0xdac17f958d2ee523a2206206994597c13d831ec7'
+const APE = '0x4d224452801ACEd8B2F0aebE155379bb5D594381'
 
 const WETHABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"guy","type":"address"},{"name":"wad","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"src","type":"address"},{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"wad","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"deposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"guy","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Withdrawal","type":"event"}]
 
@@ -32,8 +33,8 @@ let wrapEth = async (amount, _from) => {
     await WETHContract.methods.deposit().send({from: _from, value: web3.utils.toWei(amount.toString(), 'ether')})
 }
 
-let sendWrapEth = async(amount, to, wethContract) => {
-    await wethContract.methods.transfer(to,web3.utils.toWei(amount.toString(), 'ether')).send({from: process.env.ACCOUNT})
+let sendToken = async(amount, to, tokenContract) => {
+    await tokenContract.methods.transfer(to,web3.utils.toWei(amount.toString(), 'ether')).send({from: process.env.ACCOUNT})
 }
 
 let getWalletEthBalance = async (address) => {
@@ -87,6 +88,7 @@ let sushiSwapPriceCalc = new SushiSwapPriceCalculator(web3)
 
 const WETHContract = new web3.eth.Contract(WETHABI, WETH)
 const WBTCContract = new web3.eth.Contract(WETHABI, WBTC)
+const APEContract = new web3.eth.Contract(WETHABI, APE)
 
 const AaveFlashLoandAddress = '0x4bf010f1b9beDA5450a8dD702ED602A104ff65EE'
 const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlashLoandAddress)
@@ -107,7 +109,9 @@ let main = async () => {
         let pair1 = getPercentDifference(uniPrice,sushiPrice)
         let pair2 = getPercentDifference(uniPrice2,sushiPrice2)
         let pair3 = getPercentDifference(uniPrice3,sushiPrice3)
-
+        console.log(pair1)
+        console.log(pair2)
+        console.log(pair3)
         if(pair1 >= .5){
             console.log(pair1)
             let direction = getTokenDirection(uniPrice,sushiPrice)
@@ -121,31 +125,36 @@ let main = async () => {
             process.exit()
         }
         //Wrap some ETH to be used for trading.
-        // let wethAmountToTransfer = 30
-        // await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
+        let wethAmountToTransfer = 30
+        await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
+        let wethBalBefore = await WETHContract.methods.balanceOf(process.env.ACCOUNT).call()
+        await sendToken(wethAmountToTransfer,'0x4bf010f1b9beDA5450a8dD702ED602A104ff65EE',WETHContract)
 
         // let amountOut = await uniSwapSingleSwapTokens(1,0,WETH,WBTC,500)
         // let amountOutSushi = await sushiSwapSingleSwapTokens(1,0,WETH,WBTC,5000000000)
         // console.log(amountOut.toFixed(8))
         // console.log(amountOutSushi.toFixed(8))
-        // if(pair1 >= .5){
-        //     let direction = getTokenDirection(uniPrice,sushiPrice)
-        //     console.log(direction)
-        //     let amountToTrade = BigNumber(1).shiftedBy(8).toString()
-        //     try{
-        //         await AaveFlashLoanContract.methods.myFlashLoanCall(WBTC,WETH,direction,500,amountToTrade,0,5000000000).send({from: process.env.ACCOUNT})
-        //         await AaveFlashLoanContract.methods.withdrawERC20Token(WBTC).send({from: process.env.ACCOUNT})
-        //     }catch(error){
-        //         console.log(error)
-        //         process.exit()
-        //     }
-        //     let wbtcBal = await WBTCContract.methods.balanceOf(process.env.ACCOUNT).call()
-        //     console.log(wbtcBal)
-        //     let amountMade = wbtcBal
-        //     console.log(amountMade)
-        // }
-        //let amountOutSushi = await sushiSwapSingleSwapTokens(amountOut,0,WBTC,WETH,5000000000)
-        //console.log(amountOutSushi.toFixed(8))
+        if(pair3 >= 3.5){
+            let direction = getTokenDirection(uniPrice3,sushiPrice3)
+            console.log(direction)
+            let amountToTrade = BigNumber(10).shiftedBy(8).toString()
+            try{
+                await AaveFlashLoanContract.methods.myFlashLoanCall(WETH,APE,direction,3000,amountToTrade,0,5000000000).send({from: process.env.ACCOUNT})
+            }catch(error){
+                console.log(error)
+            }
+            try{
+                await AaveFlashLoanContract.methods.withdrawERC20Token(WETH).send({from: process.env.ACCOUNT})
+            }catch(error){
+                console.log(error)
+                process.exit()
+            }
+            let wethBal = await WETHContract.methods.balanceOf(process.env.ACCOUNT).call()
+            console.log(wethBal)
+            let amountMade = wethBal-wethBalBefore
+            console.log(amountMade)
+            process.exit()
+        }
 
         // if(pair1 >= 1){
         //     console.log('Trade should execute for pair WETH/WBTC')
