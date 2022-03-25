@@ -1,7 +1,7 @@
 //https://trufflesuite.com/docs/truffle/getting-started/interacting-with-your-contracts.html
 //The link above is a good resource for everything related to truffle contracts.
 
-const { web3 } = require("hardhat");
+const { web3, assert } = require("hardhat");
 
 //Creates a truffe contract from compiled artifacts.
 const AaveFlashLoan = artifacts.require("AaveFlashLoan");
@@ -23,6 +23,7 @@ describe( "AaveFlashLoan contract", function () {
     assert.notEqual(balance, 0)
     //deploy contract
     aaveFlashLoan = await AaveFlashLoan.new('0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5');
+    //const gasEstimate = await aaveFlashLoan.createInstance.estimateGas();
   });
 
    describe("Aave Loan address should match", function () {
@@ -30,6 +31,9 @@ describe( "AaveFlashLoan contract", function () {
        assert.equal(await aaveFlashLoan.provider(),'0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5')
      });
 
+    // it('Check lending pool address.', async function () {
+    //   assert.equal(await aaveFlashLoan.lendingPoolAddr(),'0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9')
+    // })
      it('Should borrow WETH using UniSwap V3 first.', async function () {
       let wethAmountToTransfer = 15
       //Send ETH to WETH contract in return for WETH

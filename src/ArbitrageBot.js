@@ -108,19 +108,45 @@ let main = async () => {
         let pair2 = getPercentDifference(uniPrice2,sushiPrice2)
         let pair3 = getPercentDifference(uniPrice3,sushiPrice3)
 
-        
+        if(pair1 >= .5){
+            console.log(pair1)
+            let direction = getTokenDirection(uniPrice,sushiPrice)
+            console.log(direction)
+            process.exit()
+        }
+        if(pair2 >= .5){
+            console.log(pair2)
+            let direction = getTokenDirection(uniPrice,sushiPrice)
+            console.log(direction)
+            process.exit()
+        }
         //Wrap some ETH to be used for trading.
-        //let wethAmountToTransfer = 30
-        //await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
+        // let wethAmountToTransfer = 30
+        // await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
 
-        //let amountOut = await uniSwapSingleSwapTokens(1,0,WETH,WBTC,500)
+        // let amountOut = await uniSwapSingleSwapTokens(1,0,WETH,WBTC,500)
+        // let amountOutSushi = await sushiSwapSingleSwapTokens(1,0,WETH,WBTC,5000000000)
+        // console.log(amountOut.toFixed(8))
+        // console.log(amountOutSushi.toFixed(8))
+        // if(pair1 >= .5){
+        //     let direction = getTokenDirection(uniPrice,sushiPrice)
+        //     console.log(direction)
+        //     let amountToTrade = BigNumber(1).shiftedBy(8).toString()
+        //     try{
+        //         await AaveFlashLoanContract.methods.myFlashLoanCall(WBTC,WETH,direction,500,amountToTrade,0,5000000000).send({from: process.env.ACCOUNT})
+        //         await AaveFlashLoanContract.methods.withdrawERC20Token(WBTC).send({from: process.env.ACCOUNT})
+        //     }catch(error){
+        //         console.log(error)
+        //         process.exit()
+        //     }
+        //     let wbtcBal = await WBTCContract.methods.balanceOf(process.env.ACCOUNT).call()
+        //     console.log(wbtcBal)
+        //     let amountMade = wbtcBal
+        //     console.log(amountMade)
+        // }
         //let amountOutSushi = await sushiSwapSingleSwapTokens(amountOut,0,WBTC,WETH,5000000000)
-        //let amountOutSushi = await sushiSwapSingleSwapTokens(1,0,WETH,WBTC,5000000000)
-        //console.log(amountOut.toFixed(8))
-        //console.log(amountOutSushi.toFixed(8))
         //console.log(amountOutSushi.toFixed(8))
 
-        //process.exit()
         // if(pair1 >= 1){
         //     console.log('Trade should execute for pair WETH/WBTC')
         //     console.log(pair1)
