@@ -1,8 +1,8 @@
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-import { FlashLoanReceiverBase } from "./FlashLoanReceiverBase.sol";
-import { ILendingPool, ILendingPoolAddressesProvider } from "./Interfaces.sol";
+import { FlashLoanReceiverBase } from "./aaveV2/FlashLoanReceiverBase.sol";
+import { ILendingPool, ILendingPoolAddressesProvider } from "./aaveV2/Interfaces.sol";
 import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
 import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';

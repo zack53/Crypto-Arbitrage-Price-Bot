@@ -23,87 +23,83 @@ describe( "AaveFlashLoan contract", function () {
     aaveFlashLoan = await AaveFlashLoan.new(AaveILendingPoolAddressesProvider);
     //const gasEstimate = await aaveFlashLoan.createInstance.estimateGas();
   });
+    it("Should deploy with the correct address", async function () {
+      assert.equal(await aaveFlashLoan.provider(),AaveILendingPoolAddressesProvider)
+    });
 
-   describe("Aave Loan address should match", function () {
-     it("Should deploy with the correct address", async function () {
-       assert.equal(await aaveFlashLoan.provider(),AaveILendingPoolAddressesProvider)
-     });
+  // it('Check lending pool address.', async function () {
+  //   assert.equal(await aaveFlashLoan.lendingPoolAddr(),'0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9')
+  // })
+    it('Should borrow WETH using UniSwap V3 first.', async function () {
+    let wethAmountToTransfer = 15
+    //Send ETH to WETH contract in return for WETH
+    await wrapEth(wethAmountToTransfer, accounts[0])
+    //Sends WETH to the contract to be able to pay premium fee during test.
+    await sendWrapEth(wethAmountToTransfer, aaveFlashLoan.address, accounts[0])
+    let wethContractBal = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+    assert.equal(web3.utils.fromWei(wethContractBal,'ether'),wethAmountToTransfer)
+    //The link at the top of this file describes how to override 
+    //the from value when dealing with transactions using truffle contracts.
+    //I am sending the wethAmountToTransfer to the contract to be swapped on
+    //UniSwap V3 Pool for WBTC. The WBTC is then transferred back to the account
+    //that sent the request.
+    await aaveFlashLoan.myFlashLoanCall(WETH, WBTC, 1, 500, web3.utils.toWei(wethAmountToTransfer.toString(),'ether'), 0, 5000000000, {from: accounts[0]})
+    let wethContractBalAfter = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+    assert.notEqual(wethContractBalAfter, 0)
+  })
 
-    // it('Check lending pool address.', async function () {
-    //   assert.equal(await aaveFlashLoan.lendingPoolAddr(),'0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9')
-    // })
-     it('Should borrow WETH using UniSwap V3 first.', async function () {
-      let wethAmountToTransfer = 15
-      //Send ETH to WETH contract in return for WETH
-      await wrapEth(wethAmountToTransfer, accounts[0])
-      //Sends WETH to the contract to be able to pay premium fee during test.
-      await sendWrapEth(wethAmountToTransfer, aaveFlashLoan.address, accounts[0])
-      let wethContractBal = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
-      assert.equal(web3.utils.fromWei(wethContractBal,'ether'),wethAmountToTransfer)
-      //The link at the top of this file describes how to override 
-      //the from value when dealing with transactions using truffle contracts.
-      //I am sending the wethAmountToTransfer to the contract to be swapped on
-      //UniSwap V3 Pool for WBTC. The WBTC is then transferred back to the account
-      //that sent the request.
-      await aaveFlashLoan.myFlashLoanCall(WETH, WBTC, 1, 500, web3.utils.toWei(wethAmountToTransfer.toString(),'ether'), 0, 5000000000, {from: accounts[0]})
-      let wethContractBalAfter = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
-      assert.notEqual(wethContractBalAfter, 0)
-    })
+  it('Should borrow WETH using SushiSwap First.', async function () {
+    let wethAmountToTransfer = 15
+    //The link at the top of this file describes how to override 
+    //the from value when dealing with transactions using truffle contracts.
+    //I am sending the wethAmountToTransfer to the contract to be swapped on
+    //UniSwap V3 Pool for WBTC. The WBTC is then transferred back to the account
+    //that sent the request.
+    await aaveFlashLoan.myFlashLoanCall(WETH, WBTC, 0, 500, web3.utils.toWei(wethAmountToTransfer.toString(),'ether'), 0, 5000000000, {from: accounts[0]})
+    let wethContractBalAfter = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+    assert.notEqual(wethContractBalAfter, 0)
+  })
 
-    it('Should borrow WETH using SushiSwap First.', async function () {
-      let wethAmountToTransfer = 15
-      //The link at the top of this file describes how to override 
-      //the from value when dealing with transactions using truffle contracts.
-      //I am sending the wethAmountToTransfer to the contract to be swapped on
-      //UniSwap V3 Pool for WBTC. The WBTC is then transferred back to the account
-      //that sent the request.
-      await aaveFlashLoan.myFlashLoanCall(WETH, WBTC, 0, 500, web3.utils.toWei(wethAmountToTransfer.toString(),'ether'), 0, 5000000000, {from: accounts[0]})
-      let wethContractBalAfter = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
-      assert.notEqual(wethContractBalAfter, 0)
-    })
-
-    it('Should fail to withdraw all WETH token if not owner.', async function () {
-      let wethContractBal = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
-      if(wethContractBal > 0){
-        try{
-          await aaveFlashLoan.withdrawERC20Token(WETH, {from: accounts[1]});
-        }catch(error){}
-      }
-      let wethContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
-      assert.notEqual(wethContractBalAfterWithdraw, 0)
-    })
-
-    it('Should withdraw all WETH token.', async function () {
-      let wethContractBal = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
-      if(wethContractBal > 0){
-        await aaveFlashLoan.withdrawERC20Token(WETH);
-      }
-      let wethContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
-      assert.equal(wethContractBalAfterWithdraw, 0)
-    })
-    
-    it('Should withdraw all WBTC token.', async function () {
-      let wbtcContractBal = await WBTCContract.methods.balanceOf(aaveFlashLoan.address).call()
-      if(wbtcContractBal > 0){
-        await aaveFlashLoan.withdrawERC20Token(WBTC);
-      }
-      let wbtcContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
-      assert.equal(wbtcContractBalAfterWithdraw, 0)
-    })
-
-    it('Should transfer ownership.', async function () {
-      await aaveFlashLoan.transferOwnership(accounts[1]);
-      assert.equal(await aaveFlashLoan.owner(), accounts[1])
-    })
-
-    it('Should fail to transfer ownership.', async function () {
+  it('Should fail to withdraw all WETH token if not owner.', async function () {
+    let wethContractBal = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+    if(wethContractBal > 0){
       try{
-        await aaveFlashLoan.transferOwnership(accounts[2]);
+        await aaveFlashLoan.withdrawERC20Token(WETH, {from: accounts[1]});
       }catch(error){}
-      assert.equal(await aaveFlashLoan.owner(), accounts[1])
-    })
+    }
+    let wethContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+    assert.notEqual(wethContractBalAfterWithdraw, 0)
+  })
 
-   });
+  it('Should withdraw all WETH token.', async function () {
+    let wethContractBal = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+    if(wethContractBal > 0){
+      await aaveFlashLoan.withdrawERC20Token(WETH);
+    }
+    let wethContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+    assert.equal(wethContractBalAfterWithdraw, 0)
+  })
+  
+  it('Should withdraw all WBTC token.', async function () {
+    let wbtcContractBal = await WBTCContract.methods.balanceOf(aaveFlashLoan.address).call()
+    if(wbtcContractBal > 0){
+      await aaveFlashLoan.withdrawERC20Token(WBTC);
+    }
+    let wbtcContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+    assert.equal(wbtcContractBalAfterWithdraw, 0)
+  })
+
+  it('Should transfer ownership.', async function () {
+    await aaveFlashLoan.transferOwnership(accounts[1]);
+    assert.equal(await aaveFlashLoan.owner(), accounts[1])
+  })
+
+  it('Should fail to transfer ownership.', async function () {
+    try{
+      await aaveFlashLoan.transferOwnership(accounts[2]);
+    }catch(error){}
+    assert.equal(await aaveFlashLoan.owner(), accounts[1])
+  })
  });
 
 //Need to put these functions in a class to export from 

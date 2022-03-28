@@ -21,29 +21,27 @@ describe( "SushiSwapSingleSwap contract", function () {
     sushiSwapSingleSwap = await SushiSwapSingleSwap.new(SushiSwapV2RouterAddress);
   });
 
-  describe("Swap router address should match", function () {
-    it("Should deploy with the correct address", async function () {
-      assert.equal(await sushiSwapSingleSwap.sushiRouter(), SushiSwapV2RouterAddress)
-    });
-
-    it('Should swap token values WETH for WBTC', async function () {
-      let wethAmountToTransfer = 15
-      //Send ETH to WETH contract in return for WETH
-      await wrapEth(wethAmountToTransfer, accounts[0])
-      //Approves the contract to trasnferFrom this address.
-      await WETHContract.methods.approve(sushiSwapSingleSwap.address, web3.utils.toWei(wethAmountToTransfer.toString(),'ether')).send({from: accounts[0]})
-
-      //The link at the top of this file describes how to override 
-      //the from value when dealing with transactions using truffle contracts.
-      //I am sending the wethAmountToTransfer to the contract to be swapped on
-      //UniSwap V3 Pool for WBTC. The WBTC is then transferred back to the account
-      //that sent the request.
-      await sushiSwapSingleSwap.swapExactInputSingle(web3.utils.toWei(wethAmountToTransfer.toString(),'ether'),0,[WETH,WBTC],accounts[0],5000000000, {from: accounts[0]})
-      let WBTCBal = await WBTCContract.methods.balanceOf(accounts[0]).call()
-      assert.notEqual(WBTCBal/10**8, 0)
-    })
-
+  it("Should deploy with the correct address", async function () {
+    assert.equal(await sushiSwapSingleSwap.sushiRouter(), SushiSwapV2RouterAddress)
   });
+
+  it('Should swap token values WETH for WBTC', async function () {
+    let wethAmountToTransfer = 15
+    //Send ETH to WETH contract in return for WETH
+    await wrapEth(wethAmountToTransfer, accounts[0])
+    //Approves the contract to trasnferFrom this address.
+    await WETHContract.methods.approve(sushiSwapSingleSwap.address, web3.utils.toWei(wethAmountToTransfer.toString(),'ether')).send({from: accounts[0]})
+
+    //The link at the top of this file describes how to override 
+    //the from value when dealing with transactions using truffle contracts.
+    //I am sending the wethAmountToTransfer to the contract to be swapped on
+    //UniSwap V3 Pool for WBTC. The WBTC is then transferred back to the account
+    //that sent the request.
+    await sushiSwapSingleSwap.swapExactInputSingle(web3.utils.toWei(wethAmountToTransfer.toString(),'ether'),0,[WETH,WBTC],accounts[0],5000000000, {from: accounts[0]})
+    let WBTCBal = await WBTCContract.methods.balanceOf(accounts[0]).call()
+    assert.notEqual(WBTCBal/10**8, 0)
+})
+
 });
 
 //Need to put these functions in a class to export from 
