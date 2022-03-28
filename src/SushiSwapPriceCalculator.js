@@ -1,6 +1,6 @@
 require('dotenv').config()
 const BigNumber = require('bignumber.js')
-const {SushiV2FactoryAddress, SushiV2FactoryABI, SushiSwapV2RouterAddress, SushiV2RouterABI, SushiWETHtoWBTCPairAddress, SushiWETHtoUSDTPairAddress, SushiAPEtoWETHPairAddress, SushiPairAddressABI, ERC20ABI } = require('./EVMAddresses/ethMainnetAddresses')
+const {SushiV2FactoryAddress, SushiV2FactoryABI, SushiSwapV2RouterAddress, SushiV2RouterABI, SushiWETHtoWBTCPairAddress, SushiWETHtoUSDTPairAddress, SushiAPEtoWETHPairAddress, SushiPairAddressABI, ERC20ABI } = require('./EVMAddresses/evmAddresses')
 /**
   https://thegraph.com/hosted-service/subgraph/zippoxer/sushiswap-subgraph-fork?selected=playground
   https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork

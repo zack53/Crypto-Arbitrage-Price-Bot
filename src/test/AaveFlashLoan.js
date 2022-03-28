@@ -2,7 +2,7 @@
 //The link above is a good resource for everything related to truffle contracts.
 
 const { web3, assert } = require("hardhat")
-const { WETH, WBTC, ERC20ABI, AaveILendingPoolAddressesProvider} = require('../EVMAddresses/ethMainnetAddresses')
+const { WETH, WBTC, ERC20ABI, AaveILendingPoolAddressesProvider} = require('../EVMAddresses/evmAddresses')
 
 //Creates a truffe contract from compiled artifacts.
 const AaveFlashLoan = artifacts.require("AaveFlashLoan")

@@ -1,6 +1,6 @@
 require('dotenv').config()
 const BigNumber = require('bignumber.js')
-const { UniWETHtoWBTCPoolAddress, UniWETHtoUSDTPoolAddress, UniAPEToWETHPoolAddress, UniUNItoWETHPoolAddress, UniswapV3FactoryContractAddress, UniswapV3FactoryABI, UniswapV3PoolABI, ERC20ABI} = require('./EVMAddresses/ethMainnetAddresses')
+const { UniWETHtoWBTCPoolAddress, UniWETHtoUSDTPoolAddress, UniAPEToWETHPoolAddress, UniUNItoWETHPoolAddress, UniswapV3FactoryContractAddress, UniswapV3FactoryABI, UniswapV3PoolABI, ERC20ABI} = require('./EVMAddresses/evmAddresses')
 
 
 class UniswapV3PriceCalculator{

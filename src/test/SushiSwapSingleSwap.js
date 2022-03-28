@@ -3,7 +3,7 @@
 
 //Creates a truffe contract from compiled artifacts.
 const SushiSwapSingleSwap = artifacts.require("SushiSwapSingleSwap")
-const { WETH, WBTC, ERC20ABI, SushiSwapV2RouterAddress} = require('../EVMAddresses/ethMainnetAddresses')
+const { WETH, WBTC, ERC20ABI, SushiSwapV2RouterAddress} = require('../EVMAddresses/evmAddresses')
 
 const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
 const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)

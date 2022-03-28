@@ -1,5 +1,5 @@
 const { ethers } = require("hardhat");
-const { AaveILendingPoolAddressesProvider, UniSwapV3RouterAddress, SushiSwapV2RouterAddress } = require('../EVMAddresses/ethMainnetAddresses')
+const { AaveILendingPoolAddressesProvider, UniSwapV3RouterAddress, SushiSwapV2RouterAddress } = require('../EVMAddresses/evmAddresses')
 
 async function main() {
   const AaveFlashLoan = await ethers.getContractFactory('AaveFlashLoan')

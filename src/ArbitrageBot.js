@@ -6,7 +6,7 @@ const SushiSwapPriceCalculator = require('./SushiSwapPriceCalculator')
 const AaveFlashLoan = require('./artifacts/contracts/AaveFlashLoan.sol/AaveFlashLoan.json')
 const UniSwapSingleSwap = require('./artifacts/contracts/UniSwapSingleSwap.sol/UniSwapSingleSwap.json')
 const SushiSwapSingleSwap = require('./artifacts/contracts/SushiSwapSingleSwap.sol/SushiSwapSingleSwap.json')
-const { WETH, WBTC, APE, ERC20ABI } = require('./EVMAddresses/ethMainnetAddresses')
+const { WETH, WBTC, APE, ERC20ABI } = require('./EVMAddresses/evmAddresses')
 const { default: BigNumber } = require('bignumber.js')
 
 
