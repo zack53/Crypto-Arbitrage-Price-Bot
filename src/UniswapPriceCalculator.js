@@ -72,7 +72,7 @@ class UniswapV3PriceCalculator{
     }
 
     async main(){
-        let value1 = await this.uniswapGetSqrtPrice(8,18,this.UniswapV3PoolWETHtoWBTC,'WBTC','WETH')
+        let value1 = await this.uniswapGetSqrtPriceReversed(8,18,this.UniswapV3PoolWETHtoWBTC,'WBTC','WETH')
         let value2 = await this.uniswapGetSqrtPrice(18,6,this.UniswapV3PoolWETHtoUSDT,'WETH','USDT')
         let value3 = await this.uniswapGetSqrtPriceReversed(18,18,this.UniswapV3PoolAPEtoWETH,'APE','WETH')
         console.log('-------------------------------Uniswap V3--------------------------------------')
