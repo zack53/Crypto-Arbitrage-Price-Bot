@@ -2,13 +2,11 @@
 //The link above is a good resource for everything related to truffle contracts.
 
 //Creates a truffe contract from compiled artifacts.
-const SushiSwapSingleSwap = artifacts.require("SushiSwapSingleSwap");
+const SushiSwapSingleSwap = artifacts.require("SushiSwapSingleSwap")
+const { WETH, WBTC, ERC20ABI, SushiSwapV2RouterAddress} = require('../EVMAddresses/ethMainnetAddresses')
 
-const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
-const WBTC = '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599'
-const WETHABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"guy","type":"address"},{"name":"wad","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"src","type":"address"},{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"wad","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"deposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"guy","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Withdrawal","type":"event"}]
-const WETHContract = new web3.eth.Contract(WETHABI, WETH)
-const WBTCContract = new web3.eth.Contract(WETHABI, WBTC)
+const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
+const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
 
 // Vanilla Mocha test. Increased compatibility with tools that integrate Mocha.
 describe( "SushiSwapSingleSwap contract", function () {
@@ -20,12 +18,12 @@ describe( "SushiSwapSingleSwap contract", function () {
     let balance = await web3.eth.getBalance(accounts[0])
     assert.notEqual(balance, 0)
     //deploy contract
-    sushiSwapSingleSwap = await SushiSwapSingleSwap.new("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D");
+    sushiSwapSingleSwap = await SushiSwapSingleSwap.new(SushiSwapV2RouterAddress);
   });
 
   describe("Swap router address should match", function () {
     it("Should deploy with the correct address", async function () {
-      assert.equal(await sushiSwapSingleSwap.sushiRouter(), "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
+      assert.equal(await sushiSwapSingleSwap.sushiRouter(), SushiSwapV2RouterAddress)
     });
 
     it('Should swap token values WETH for WBTC', async function () {

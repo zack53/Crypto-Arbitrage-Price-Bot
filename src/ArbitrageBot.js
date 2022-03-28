@@ -6,15 +6,10 @@ const SushiSwapPriceCalculator = require('./SushiSwapPriceCalculator')
 const AaveFlashLoan = require('./artifacts/contracts/AaveFlashLoan.sol/AaveFlashLoan.json')
 const UniSwapSingleSwap = require('./artifacts/contracts/UniSwapSingleSwap.sol/UniSwapSingleSwap.json')
 const SushiSwapSingleSwap = require('./artifacts/contracts/SushiSwapSingleSwap.sol/SushiSwapSingleSwap.json')
-
+const { WETH, WBTC, APE, ERC20ABI } = require('./EVMAddresses/ethMainnetAddresses')
 const { default: BigNumber } = require('bignumber.js')
 
-const WETH = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
-const WBTC = '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599'
-const USDT = '0xdac17f958d2ee523a2206206994597c13d831ec7'
-const APE = '0x4d224452801ACEd8B2F0aebE155379bb5D594381'
 
-const WETHABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"guy","type":"address"},{"name":"wad","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"src","type":"address"},{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"wad","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"deposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"guy","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Withdrawal","type":"event"}]
 
 
 let getPercentDifference = (price,price2) => {
@@ -46,8 +41,8 @@ let getWalletEthBalance = async (address) => {
 let sushiSwapSingleSwapTokens = async (amountIn, amountOutMin, token0, token1, deadline) =>{
     if(token0 != WETH){
     }
-    let tokenContract = new web3.eth.Contract(WETHABI, token0)
-    let token1Contract = new web3.eth.Contract(WETHABI, token1)
+    let tokenContract = new web3.eth.Contract(ERC20ABI, token0)
+    let token1Contract = new web3.eth.Contract(ERC20ABI, token1)
     
     let tokenDecimal = await getTokenDecimal(tokenContract)
     let amountAdj = BigNumber(amountIn).shiftedBy(tokenDecimal).toString()
@@ -67,8 +62,8 @@ let getTokenDecimal = async (tokenContract) => {
 let uniSwapSingleSwapTokens = async (amountIn, amountOutMin, token0, token1, poolFee) =>{
     if(token0 != WETH){
     }
-    let tokenContract = new web3.eth.Contract(WETHABI, token0)
-    let token1Contract = new web3.eth.Contract(WETHABI, token1)
+    let tokenContract = new web3.eth.Contract(ERC20ABI, token0)
+    let token1Contract = new web3.eth.Contract(ERC20ABI, token1)
 
     let tokenDecimal = await getTokenDecimal(tokenContract)
     let amountAdj = BigNumber(amountIn).shiftedBy(tokenDecimal).toString()
@@ -86,17 +81,17 @@ const web3 = new Web3(new HDWalletProvider(process.env.PRIVATE_KEY,process.env.R
 let uniswapPriceCalc = new UniswapV3PriceCalculator(web3)
 let sushiSwapPriceCalc = new SushiSwapPriceCalculator(web3)
 
-const WETHContract = new web3.eth.Contract(WETHABI, WETH)
-const WBTCContract = new web3.eth.Contract(WETHABI, WBTC)
-const APEContract = new web3.eth.Contract(WETHABI, APE)
+const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
+const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
+const APEContract = new web3.eth.Contract(ERC20ABI, APE)
 
-const AaveFlashLoandAddress = '0x4bf010f1b9beDA5450a8dD702ED602A104ff65EE'
+const AaveFlashLoandAddress = '0x40a42Baf86Fc821f972Ad2aC878729063CeEF403'
 const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlashLoandAddress)
 
-const UniSwapSingleSwapAddress = '0x40a42Baf86Fc821f972Ad2aC878729063CeEF403'
+const UniSwapSingleSwapAddress = '0x96F3Ce39Ad2BfDCf92C0F6E2C2CAbF83874660Fc'
 const UniSwapSingleSwapContract = new web3.eth.Contract(UniSwapSingleSwap.abi, UniSwapSingleSwapAddress)
 
-const SushiSwapSingleSwapAddress = '0x96F3Ce39Ad2BfDCf92C0F6E2C2CAbF83874660Fc'
+const SushiSwapSingleSwapAddress = '0x986aaa537b8cc170761FDAC6aC4fc7F9d8a20A8C'
 const SushiSwapSingleSwapContract = new web3.eth.Contract(SushiSwapSingleSwap.abi, SushiSwapSingleSwapAddress)
 let main = async () => {
     if (isPolling == false){
@@ -125,16 +120,16 @@ let main = async () => {
             process.exit()
         }
         //Wrap some ETH to be used for trading.
-        let wethAmountToTransfer = 30
-        await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
-        let wethBalBefore = await WETHContract.methods.balanceOf(process.env.ACCOUNT).call()
-        await sendToken(wethAmountToTransfer,'0x4bf010f1b9beDA5450a8dD702ED602A104ff65EE',WETHContract)
 
         // let amountOut = await uniSwapSingleSwapTokens(1,0,WETH,WBTC,500)
         // let amountOutSushi = await sushiSwapSingleSwapTokens(1,0,WETH,WBTC,5000000000)
         // console.log(amountOut.toFixed(8))
         // console.log(amountOutSushi.toFixed(8))
         if(pair3 >= 3.5){
+            let wethAmountToTransfer = 30
+            await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
+            let wethBalBefore = await WETHContract.methods.balanceOf(process.env.ACCOUNT).call()
+            await sendToken(wethAmountToTransfer,'0x4bf010f1b9beDA5450a8dD702ED602A104ff65EE',WETHContract)
             let direction = getTokenDirection(uniPrice3,sushiPrice3)
             console.log(direction)
             let amountToTrade = BigNumber(10).shiftedBy(8).toString()
@@ -156,44 +151,6 @@ let main = async () => {
             process.exit()
         }
 
-        // if(pair1 >= 1){
-        //     console.log('Trade should execute for pair WETH/WBTC')
-        //     console.log(pair1)
-        //     process.exit()
-        // }
-        // if(pair2 >= 1){
-        //     console.log('Trade should execute for pair USDT/WETH')
-        //     console.log(pair2)
-        //     process.exit()
-        // }
-        // if(pair3 >= 1){
-        //     console.log('Trade should execute for pair USDT/WBTC')
-        //     console.log(pair3)
-        //     let direction = getTokenDirection(uniPrice3, sushiPrice3)
-        //     let wbtcDecimal = await WBTCContract.methods.decimals().call()
-        //     let amountTOTrade = BigNumber(1).shiftedBy(parseInt(wbtcDecimal))
-        //     let wethAmountToTransfer = 30
-        //     //Send ETH to WETH contract in return for WETH
-        //     await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
-        //     let wethToTrade = web3.utils.toWei(wethAmountToTransfer.toString(),'ether')
-        //     //Approve withdrawl of WETH to the contract to be able to pay premium fee during test.
-        //     await WETHContract.methods.approve(UniSwapSingleSwapAddress, wethToTrade).send({from: process.env.ACCOUNT})
-        //     await UniSwapSingleSwapContract.methods.swapExactInputSingle(wethToTrade, 0, WETH, WBTC, 500).send({from: process.env.ACCOUNT})
-        //     let wbtcBalBefore = await WBTCContract.methods.balanceOf(process.env.ACCOUNT).call()
-        //     await WBTCContract.methods.transfer(AaveFlashLoandAddress, wbtcBalBefore).send({from: process.env.ACCOUNT})
-        //     console.log(wbtcBalBefore)
-        //     try{
-        //         await AaveFlashLoanContract.methods.myFlashLoanCall(WBTC,USDT,direction,3000,amountTOTrade,0,5000000000).send({from: process.env.ACCOUNT})
-        //     }catch(error){
-        //         console.log(error)
-        //     }
-        //     await AaveFlashLoanContract.methods.withdrawERC20Token(WBTC).send({from: process.env.ACCOUNT})
-        //     let wbtcBal = await WBTCContract.methods.balanceOf(process.env.ACCOUNT).call()
-        //     console.log(wbtcBal)
-        //     let amountMade = (wbtcBal-wbtcBalBefore)/10**8
-        //     console.log(amountMade)
-        //     process.exit()
-        // }
 
         isPolling = false
     }
