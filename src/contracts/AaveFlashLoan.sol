@@ -19,7 +19,7 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
     address immutable lendingPoolAddr;
     address public owner;
     ISwapRouter constant uniSwapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
-    IUniswapV2Router02 constant sushiRouter = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+    IUniswapV2Router02 constant sushiRouter = IUniswapV2Router02(0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506);
 
     /**
         Intantiate lending pool addresses provider and get lending pool address

@@ -14,14 +14,11 @@ class UniswapV3PriceCalculator{
         this.UniswapV3PoolABI = UniswapV3PoolABI
         //ERC20 ABI
         this.ERC20ABI = ERC20ABI
-    
         this.UniswapV3Factory = new this.web3.eth.Contract(this.UniswapV3FactoryABI, this.UniswapV3FactoryContractAddress)
 
         this.WETHtoWBTCPoolAddress = UniWETHtoWBTCPoolAddress
         this.WETHtoUSDTPoolAddress = UniWETHtoUSDTPoolAddress
         this.APEToWETHPoolAddress = UniAPEToWETHPoolAddress
-        this.UNItoWETHPoolAddress = UniUNItoWETHPoolAddress
-
         this.UniswapV3PoolWETHtoWBTC = new this.web3.eth.Contract(this.UniswapV3PoolABI, this.WETHtoWBTCPoolAddress)
         this.UniswapV3PoolWETHtoUSDT = new this.web3.eth.Contract(this.UniswapV3PoolABI, this.WETHtoUSDTPoolAddress)
         this.UniswapV3PoolAPEtoWETH = new this.web3.eth.Contract(this.UniswapV3PoolABI, this.APEToWETHPoolAddress)

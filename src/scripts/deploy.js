@@ -1,16 +1,17 @@
 const { ethers } = require("hardhat");
+const { AaveILendingPoolAddressesProvider, UniSwapV3RouterAddress, SushiSwapV2RouterAddress } = require('../EVMAddresses/ethMainnetAddresses')
 
 async function main() {
   const AaveFlashLoan = await ethers.getContractFactory('AaveFlashLoan')
-  const aaveFlashLoan = await AaveFlashLoan.deploy("0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5");
+  const aaveFlashLoan = await AaveFlashLoan.deploy(AaveILendingPoolAddressesProvider);
   
   // We get the contract to deploy
   const UniSwapSingleSwap = await ethers.getContractFactory("UniSwapSingleSwap");
-  const uniSwapSingleSwap = await UniSwapSingleSwap.deploy("0xE592427A0AEce92De3Edee1F18E0157C05861564");
+  const uniSwapSingleSwap = await UniSwapSingleSwap.deploy(UniSwapV3RouterAddress);
 
   
   const SushiSwapSingleSwap = await ethers.getContractFactory('SushiSwapSingleSwap')
-  const sushiSwapSingleSwap = await SushiSwapSingleSwap.deploy("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D");
+  const sushiSwapSingleSwap = await SushiSwapSingleSwap.deploy(SushiSwapV2RouterAddress);
 
 
   console.log("AaveFlashLoan deployed to:", aaveFlashLoan.address);
