@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.10;
 
 import { FlashLoanReceiverBase, IFlashLoanReceiver, IPoolAddressesProvider, IPool } from './base/FlashLoanReceiverBase.sol';
@@ -7,15 +7,16 @@ import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 
 /**
- * @title IFlashLoanReceiver
- * @author Aave
- * @notice Defines the basic interface of a flashloan-receiver contract.
- * @dev Implement this interface to develop a flashloan-compatible flashLoanReceiver contract
- **/
+    Contract to call a Flash Loan and make token swaps from
+    UniSwap and SushiSwap. The direction of which to use
+    first can be controlled by providing a 1 to start with
+    UniSwap or any other number acceptable for uint8 to 
+    start with SushiSwap.
+*/
 contract AaveFlashLoanV3 is FlashLoanReceiverBase{
     
     
-    address public owner;
+    address owner;
     ISwapRouter immutable uniSwapRouter;
     IUniswapV2Router02 immutable sushiRouter;
 
@@ -36,7 +37,8 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
     modifier onlyOwner{
         require(address(msg.sender) == owner);
         _;
-    }  
+    } 
+
     /**
         This function is called after your contract has received the flash loaned amount
      */
@@ -82,10 +84,12 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
         uint256[] memory modes = new uint256[](1);
         modes[0] = 0;
         address onBehalfOf = address(this);
+
         // I am encoding parameters needed for other functions that are called in the
         // executeOperation call back function.
         bytes memory params = abi.encode(token0, token1, direction, poolFee, amountIn, amountOut, deadline);
         uint16 referralCode = 0;
+
         //Sends information for the flashLoan
         POOL.flashLoan(
             receiverAddress,
@@ -156,13 +160,15 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
         // The call to `exactInputSingle` executes the swap.
         amountOut = sushiRouter.swapExactTokensForTokens(amountIn, amountOutMin, path, address(this), deadline);
     }
-    /**
-        TODO: create function to transfer ETH
-        
-        // withdraw all ETH
-        msg.sender.call{ value: address(this).balance }("");
-    */
 
+    /**
+        Withdraw function to be used in case any funds are left over.
+    */
+    function withdraw() external payable onlyOwner(){
+        require(address(this).balance > 0, 'No funds are currently on contract to withdraw.');
+        (bool success, ) =  owner.call{ value: address(this).balance }("");
+        require(success, "Withdraw failed.");
+    }
     
     /**
         Withdraw provided ERC20 token.
@@ -172,6 +178,15 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
         require(currentAmount > 0, 'Contract does not have the provided ERC20 token.');
         TransferHelper.safeTransfer(token, owner, currentAmount);
     }
+
+    /**
+        Function to get owner information that keeps 
+        the owner variable private.
+    */
+    function getOwner() view external returns (address){
+        return owner;
+    }
+
     /**
         Change the owner of the contract.
      */

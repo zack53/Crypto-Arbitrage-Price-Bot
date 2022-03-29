@@ -15,19 +15,17 @@ import "hardhat/console.sol";
     !!!
  */
 contract AaveFlashLoan is FlashLoanReceiverBase {
-    ILendingPoolAddressesProvider public provider;
-    address immutable lendingPoolAddr;
     address public owner;
-    ISwapRouter constant uniSwapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
-    IUniswapV2Router02 constant sushiRouter = IUniswapV2Router02(0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506);
+    ISwapRouter immutable uniSwapRouter;
+    IUniswapV2Router02 immutable sushiRouter;
 
     /**
         Intantiate lending pool addresses provider and get lending pool address
     */
-    constructor(ILendingPoolAddressesProvider _addressProvider) FlashLoanReceiverBase(_addressProvider) public {
-        provider = _addressProvider;
-        lendingPoolAddr = provider.getLendingPool();
+    constructor(ILendingPoolAddressesProvider _addressProvider, ISwapRouter _uniSwapRouter, IUniswapV2Router02 _sushiRouter) FlashLoanReceiverBase(_addressProvider) public {
         owner = address(msg.sender);
+        uniSwapRouter = _uniSwapRouter;
+        sushiRouter = _sushiRouter;
     }
     /** 
         Modifies functions to only be called by address that

@@ -2,7 +2,7 @@
 //The link above is a good resource for everything related to truffle contracts.
 
 const { web3, assert } = require("hardhat")
-const { WETH, WBTC, ERC20ABI, AaveILendingPoolAddressesProvider} = require('../EVMAddresses/evmAddresses')
+const { WETH, WBTC, ERC20ABI, AaveILendingPoolAddressesProvider, UniSwapV3RouterAddress, SushiSwapV2RouterAddress} = require('../EVMAddresses/evmAddresses')
 
 //Creates a truffe contract from compiled artifacts.
 const AaveFlashLoan = artifacts.require("AaveFlashLoan")
@@ -20,11 +20,11 @@ describe( "AaveFlashLoan contract", function () {
     let balance = await web3.eth.getBalance(accounts[0])
     assert.notEqual(balance, 0)
     //deploy contract
-    aaveFlashLoan = await AaveFlashLoan.new(AaveILendingPoolAddressesProvider);
+    aaveFlashLoan = await AaveFlashLoan.new(AaveILendingPoolAddressesProvider,UniSwapV3RouterAddress,SushiSwapV2RouterAddress);
     //const gasEstimate = await aaveFlashLoan.createInstance.estimateGas();
   });
     it("Should deploy with the correct address", async function () {
-      assert.equal(await aaveFlashLoan.provider(),AaveILendingPoolAddressesProvider)
+      assert.equal(await aaveFlashLoan.ADDRESSES_PROVIDER(),AaveILendingPoolAddressesProvider)
     });
 
   // it('Check lending pool address.', async function () {

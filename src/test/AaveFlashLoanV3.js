@@ -11,7 +11,7 @@ const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
 const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
 
 // Vanilla Mocha test. Increased compatibility with tools that integrate Mocha.
-describe( "AaveFlashLoan contract", function () {
+describe( "AaveFlashLoanV3 contract", function () {
   let accounts;
   let aaveFlashLoan
   before(async function () {

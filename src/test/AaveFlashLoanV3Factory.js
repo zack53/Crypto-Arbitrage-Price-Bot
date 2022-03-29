@@ -22,7 +22,7 @@ describe( "AaveFlashLoanV3Factory contract", function () {
     let balance = await web3.eth.getBalance(accounts[0])
     assert.notEqual(balance, 0)
     //deploy contract
-    aaveFlashLoanFactory = await AaveFlashLoanV3Factory.new(AaveILendingPoolAddressesProviderv3, UniSwapV3RouterAddress, SushiSwapV2RouterAddress);
+    aaveFlashLoanFactory = await AaveFlashLoanV3Factory.new(AaveILendingPoolAddressesProviderv3, UniSwapV3RouterAddress, SushiSwapV2RouterAddress, '0xAB594600376Ec9fD91F8e885dADF0CE036862dE0');
     //const gasEstimate = await aaveFlashLoan.createInstance.estimateGas();
   });
 
@@ -30,6 +30,9 @@ describe( "AaveFlashLoanV3Factory contract", function () {
     assert.equal(await aaveFlashLoanFactory.addressProvider(),AaveILendingPoolAddressesProviderv3)
   })
 
+  it('Should get matic value needed', async () => {
+    assert.notEqual(web3.utils.fromWei(await aaveFlashLoanFactory.getMaticValueNeededForNewContract(),'ether'),0)
+  })
   it("Should not have an item at position 0 of the array.", async function () {
     try{
       await aaveFlashLoanFactory.AaveFlashLoanV3Contracts(0)
@@ -37,8 +40,13 @@ describe( "AaveFlashLoanV3Factory contract", function () {
   })
 
   it("Should create an item at position 0 of the array.", async function () {
-    await aaveFlashLoanFactory.createNewFlashLoanContract(50)
+    await aaveFlashLoanFactory.createNewFlashLoanContract({from: accounts[1], value: web3.utils.toWei('50','ether')})
     aaveFlashLoan = await AaveFlashLoan.at(await aaveFlashLoanFactory.AaveFlashLoanV3Contracts(0))
+  })
+
+  it('Should transfer ownership.', async function () {
+    await aaveFlashLoan.transferOwnership(accounts[0], {from: accounts[1]});
+    assert.equal(await aaveFlashLoan.getOwner(), accounts[0])
   })
 
   it("Should deploy with the correct address", async function () {
@@ -106,14 +114,14 @@ describe( "AaveFlashLoanV3Factory contract", function () {
 
   it('Should transfer ownership.', async function () {
     await aaveFlashLoan.transferOwnership(accounts[1]);
-    assert.equal(await aaveFlashLoan.owner(), accounts[1])
+    assert.equal(await aaveFlashLoan.getOwner(), accounts[1])
   })
 
   it('Should fail to transfer ownership.', async function () {
     try{
       await aaveFlashLoan.transferOwnership(accounts[2]);
     }catch(error){}
-    assert.equal(await aaveFlashLoan.owner(), accounts[1])
+    assert.equal(await aaveFlashLoan.getOwner(), accounts[1])
   })
 
 })
