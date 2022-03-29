@@ -1,8 +1,8 @@
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-import { FlashLoanReceiverBase } from "./FlashLoanReceiverBase.sol";
-import { ILendingPool, ILendingPoolAddressesProvider } from "./Interfaces.sol";
+import { FlashLoanReceiverBase } from "./aaveV2/FlashLoanReceiverBase.sol";
+import { ILendingPool, ILendingPoolAddressesProvider } from "./aaveV2/Interfaces.sol";
 import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
 import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
@@ -15,19 +15,17 @@ import "hardhat/console.sol";
     !!!
  */
 contract AaveFlashLoan is FlashLoanReceiverBase {
-    ILendingPoolAddressesProvider public provider;
-    address immutable lendingPoolAddr;
-    address public immutable owner;
-    ISwapRouter constant uniSwapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
-    IUniswapV2Router02 constant sushiRouter = IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+    address public owner;
+    ISwapRouter immutable uniSwapRouter;
+    IUniswapV2Router02 immutable sushiRouter;
 
     /**
         Intantiate lending pool addresses provider and get lending pool address
     */
-    constructor(ILendingPoolAddressesProvider _addressProvider) FlashLoanReceiverBase(_addressProvider) public {
-        provider = _addressProvider;
-        lendingPoolAddr = provider.getLendingPool();
+    constructor(ILendingPoolAddressesProvider _addressProvider, ISwapRouter _uniSwapRouter, IUniswapV2Router02 _sushiRouter) FlashLoanReceiverBase(_addressProvider) public {
         owner = address(msg.sender);
+        uniSwapRouter = _uniSwapRouter;
+        sushiRouter = _sushiRouter;
     }
     /** 
         Modifies functions to only be called by address that
@@ -62,7 +60,7 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
             uint amountOwing = amounts[i] + premiums[i];
             TransferHelper.safeApprove(assets[i], address(LENDING_POOL), amountOwing);
         }
-        //sendTokenAmount(assets[0]);
+        
         return true;
     }
     /**
@@ -104,6 +102,7 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         (address token0, address token1, uint8 direction, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint8, uint24, uint256, uint256, uint256));
 
         address[] memory path = new address[](2);
+        // I set the reverse
         if(direction == 1){
             // Call order to go from UniSwap to SushiSwap
             uint256 uniSwapAmountOut = uniSwapExactInputSingle(amountIn, amountOut, token0, token1, poolFee);  
@@ -127,8 +126,7 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         // Approve the router to spend current token0.
         TransferHelper.safeApprove(token0, address(uniSwapRouter), amountIn);
 
-        // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
-        // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
+        // We set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
         ISwapRouter.ExactInputSingleParams memory params =
             ISwapRouter.ExactInputSingleParams({
                 tokenIn: token0,
@@ -147,12 +145,7 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
     /**
         Base function to use SushiSwap Router
     */
-    function sushiSwapExactInputSingle(
-        uint256 amountIn,
-        uint256 amountOutMin,
-        address[] memory path,
-        uint256 deadline
-        ) internal returns (uint256[] memory amountOut) {
+    function sushiSwapExactInputSingle(uint256 amountIn, uint256 amountOutMin, address[] memory path, uint256 deadline) internal returns (uint256[] memory amountOut) {
 
         // Approve the router to spend WBTC.
         TransferHelper.safeApprove(path[0], address(sushiRouter), amountIn);
@@ -162,17 +155,25 @@ contract AaveFlashLoan is FlashLoanReceiverBase {
         amountOut = sushiRouter.swapExactTokensForTokens(amountIn, amountOutMin, path, address(this), deadline);
     }
     /**
-        TODO: create function to view and a function to transfer ETH
+        TODO: create function to transfer ETH
         
         // withdraw all ETH
         msg.sender.call{ value: address(this).balance }("");
     */
+
+    
     /**
         Withdraw provided ERC20 token.
     */
     function withdrawERC20Token(address token) external onlyOwner returns(uint256 currentAmount){
         currentAmount = IERC20(token).balanceOf(address(this));
-        require(currentAmount > 0, 'Contract does not have ERC20 token.');
+        require(currentAmount > 0, 'Contract does not have the provided ERC20 token.');
         TransferHelper.safeTransfer(token, owner, currentAmount);
     }
+    /**
+        Change the owner of the contract.
+     */
+     function transferOwnership(address newOwner) external onlyOwner {
+         owner = newOwner;
+     }
 }
