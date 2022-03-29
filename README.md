@@ -35,12 +35,14 @@ https://hardhat.org/getting-started/
 
 I am using hardhat to fork polygon mainnet for testing swapping contracts. The hardhat also provides good documentation for automating testing and deployment, which I am using in this project.
 
-## Uniswap API
-Uniswaps V3 deployment addresses: https://docs.uniswap.org/protocol/reference/deployments .
+I was able to easily verify my smart contract by following the steps located [here at coinsbench](https://coinsbench.com/verify-smart-contract-on-polygonscan-using-hardhat-9b8331dbd888).
 
-The Uniswap V3 deployment address link above also has a link to current pool addresses https://info.uniswap.org/#/
+## UniSwap API
+UniSwap's V3 deployment addresses: https://docs.uniswap.org/protocol/reference/deployments .
 
-A pool in Uniswap V3 is a pair. The WETH to WBTC pool can be found at the address https://etherscan.io/address/0x4585fe77225b41b697c938b018e2ac67ac5a20c0 and https://info.uniswap.org/#/pools/0x4585fe77225b41b697c938b018e2ac67ac5a20c0 .
+The UniSwap V3 deployment address link above also has a link to current pool addresses https://info.uniswap.org/#/
+
+A pool in UniSwap V3 is a pair. The WETH to WBTC pool can be found at the address https://etherscan.io/address/0x4585fe77225b41b697c938b018e2ac67ac5a20c0 and https://info.uniswap.org/#/pools/0x4585fe77225b41b697c938b018e2ac67ac5a20c0 .
 
 The sqrtPrice96 calculation can be found https://docs.uniswap.org/sdk/guides/fetching-prices .
 
@@ -50,7 +52,7 @@ When deriving a price, the decimals used by the ERC20 token should always be acc
 
 A single swap guide can be found at the location https://docs.uniswap.org/protocol/guides/swaps/single-swaps.
 
-## Sushi Swp API
+## SushiSwap API
 The overal documentation for SushiSwap can be found https://docs.sushi.com/ . This is a good place to read about the services SushiSwap provides.
 
 The development documentation can be found https://dev.sushi.com/ . The implementation to swaping single tokens on SushiSwap is the same as UniSwapV2 Router, but the addresses used for SushiSwap are different. The SushiSwap addresses can be found at the following location https://dev.sushi.com/sushiswap/contracts .
