@@ -4,12 +4,10 @@ const Web3 = require('web3')
 const UniswapV3PriceCalculator = require('./UniswapPriceCalculator')
 const SushiSwapPriceCalculator = require('./SushiSwapPriceCalculator')
 const AaveFlashLoan = require('./artifacts/contracts/AaveFlashLoanV3.sol/AaveFlashLoanV3.json')
-const UniSwapSingleSwap = require('./artifacts/contracts/UniSwapSingleSwap.sol/UniSwapSingleSwap.json')
-const SushiSwapSingleSwap = require('./artifacts/contracts/SushiSwapSingleSwap.sol/SushiSwapSingleSwap.json')
 const { WETH, WBTC, APE, ERC20ABI } = require('./EVMAddresses/evmAddresses')
 const { default: BigNumber } = require('bignumber.js')
 
-
+const AaveFlashLoanAddress = '0x89738EFa2e2944062d52669DdfF4598D22Ce02dB'
 
 
 let getPercentDifference = (price,price2) => {
@@ -38,44 +36,9 @@ let getWalletEthBalance = async (address) => {
         console.log(balance)
       })
 }
-let sushiSwapSingleSwapTokens = async (amountIn, amountOutMin, token0, token1, deadline) =>{
-    if(token0 != WETH){
-    }
-    let tokenContract = new web3.eth.Contract(ERC20ABI, token0)
-    let token1Contract = new web3.eth.Contract(ERC20ABI, token1)
-    
-    let tokenDecimal = await getTokenDecimal(tokenContract)
-    let amountAdj = BigNumber(amountIn).shiftedBy(tokenDecimal).toString()
-    let token1Decimal = await getTokenDecimal(token1Contract)
-    let amountOutMinAdj = (amountOutMin != 0) ? BigNumber(amountOutMin).shiftedBy(token1Decimal).toString() : '0'
-    let currentBalBefore = await token1Contract.methods.balanceOf(process.env.ACCOUNT).call()
-    await tokenContract.methods.approve(SushiSwapSingleSwapAddress, amountAdj).send({from: process.env.ACCOUNT})
-    await SushiSwapSingleSwapContract.methods.swapExactInputSingle(amountAdj,amountOutMinAdj,[token0,token1],process.env.ACCOUNT,deadline).send({from: process.env.ACCOUNT})
-
-    let currentBal = await token1Contract.methods.balanceOf(process.env.ACCOUNT).call()
-    return BigNumber(currentBal-currentBalBefore).shiftedBy(-1*token1Decimal)
-}
 
 let getTokenDecimal = async (tokenContract) => {
     return parseInt(await tokenContract.methods.decimals().call())
-}
-let uniSwapSingleSwapTokens = async (amountIn, amountOutMin, token0, token1, poolFee) =>{
-    if(token0 != WETH){
-    }
-    let tokenContract = new web3.eth.Contract(ERC20ABI, token0)
-    let token1Contract = new web3.eth.Contract(ERC20ABI, token1)
-
-    let tokenDecimal = await getTokenDecimal(tokenContract)
-    let amountAdj = BigNumber(amountIn).shiftedBy(tokenDecimal).toString()
-    let token1Decimal = await getTokenDecimal(token1Contract)
-    let amountOutMinAdj = (amountOutMin != 0) ? BigNumber(amountOutMin).shiftedBy(token1Decimal).toString() : '0'
-    //Approve withdrawl of WETH to the contract to be able to pay premium fee during test.
-    let currentBalBefore = await token1Contract.methods.balanceOf(process.env.ACCOUNT).call()
-    await tokenContract.methods.approve(UniSwapSingleSwapAddress, amountAdj).send({from: process.env.ACCOUNT})
-    await UniSwapSingleSwapContract.methods.swapExactInputSingle(amountAdj, amountOutMinAdj, token0, token1, poolFee).send({from: process.env.ACCOUNT})
-
-    let currentBal = await token1Contract.methods.balanceOf(process.env.ACCOUNT).call()
-    return BigNumber(currentBal-currentBalBefore).shiftedBy(-1*token1Decimal)
 }
 const web3 = new Web3(new HDWalletProvider(process.env.PRIVATE_KEY,process.env.RPC_URL))
 let uniswapPriceCalc = new UniswapV3PriceCalculator(web3)
@@ -85,14 +48,8 @@ const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
 const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
 const APEContract = new web3.eth.Contract(ERC20ABI, APE)
 
-const AaveFlashLoandAddress = '0x40a42Baf86Fc821f972Ad2aC878729063CeEF403'
-const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlashLoandAddress)
+const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlashLoanAddress)
 
-const UniSwapSingleSwapAddress = '0x96F3Ce39Ad2BfDCf92C0F6E2C2CAbF83874660Fc'
-const UniSwapSingleSwapContract = new web3.eth.Contract(UniSwapSingleSwap.abi, UniSwapSingleSwapAddress)
-
-const SushiSwapSingleSwapAddress = '0x986aaa537b8cc170761FDAC6aC4fc7F9d8a20A8C'
-const SushiSwapSingleSwapContract = new web3.eth.Contract(SushiSwapSingleSwap.abi, SushiSwapSingleSwapAddress)
 let main = async () => {
     if (isPolling == false){
 
@@ -119,24 +76,25 @@ let main = async () => {
             console.log(direction)
             process.exit()
         }
-        //Wrap some ETH to be used for trading.
-
-        // let amountOut = await uniSwapSingleSwapTokens(1,0,WETH,WBTC,500)
-        // let amountOutSushi = await sushiSwapSingleSwapTokens(1,0,WETH,WBTC,5000000000)
-        // console.log(amountOut.toFixed(8))
-        // console.log(amountOutSushi.toFixed(8))
-        if(pair3 >= 3.5){
-            let wethAmountToTransfer = 30
-            await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
-            let wethBalBefore = await WETHContract.methods.balanceOf(process.env.ACCOUNT).call()
-            await sendToken(wethAmountToTransfer,'0x4bf010f1b9beDA5450a8dD702ED602A104ff65EE',WETHContract)
-            let direction = getTokenDirection(uniPrice3,sushiPrice3)
-            console.log(direction)
-            let amountToTrade = BigNumber(10).shiftedBy(8).toString()
+        if(pair3 >= 1){
+            let wethAmountToTransfer = 20
             try{
-                await AaveFlashLoanContract.methods.myFlashLoanCall(WETH,APE,direction,3000,amountToTrade,0,5000000000).send({from: process.env.ACCOUNT})
+                await wrapEth(wethAmountToTransfer,process.env.ACCOUNT)
             }catch(error){
                 console.log(error)
+                process.exit()
+            }
+            await sendToken(wethAmountToTransfer, AaveFlashLoanAddress, WETHContract)
+            let wethBalBefore = await WETHContract.methods.balanceOf(AaveFlashLoanAddress).call()
+            console.log(wethBalBefore)
+            let direction = getTokenDirection(uniPrice3,sushiPrice3)
+            console.log(direction)
+            let amountToTrade = BigNumber(1).shiftedBy(18).toString()
+            try{
+                await AaveFlashLoanContract.methods.myFlashLoanCall(WETH,WBTC,direction,500,amountToTrade,0,50000000000).send({from: process.env.ACCOUNT})
+            }catch(error){
+                console.log(error)
+                process.exit()
             }
             try{
                 await AaveFlashLoanContract.methods.withdrawERC20Token(WETH).send({from: process.env.ACCOUNT})
