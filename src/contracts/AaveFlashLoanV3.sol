@@ -165,7 +165,6 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
         Withdraw function to be used in case any funds are left over.
     */
     function withdraw() external payable onlyOwner(){
-        require(address(this).balance > 0, 'No funds are currently on contract to withdraw.');
         (bool success, ) =  owner.call{ value: address(this).balance }("");
         require(success, "Withdraw failed.");
     }
