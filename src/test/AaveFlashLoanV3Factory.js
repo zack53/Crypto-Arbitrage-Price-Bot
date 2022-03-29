@@ -2,7 +2,7 @@
 //The link above is a good resource for everything related to truffle contracts.
 
 const { web3, assert } = require("hardhat")
-const { WETH, WBTC, ERC20ABI, AaveILendingPoolAddressesProviderv3, UniSwapV3RouterAddress, SushiSwapV2RouterAddress} = require('../EVMAddresses/evmAddresses')
+const { WETH, WBTC, ERC20ABI, AaveILendingPoolAddressesProviderv3, UniSwapV3RouterAddress, SushiSwapV2RouterAddress, ChainLinkMaticToUSDTAddress} = require('../EVMAddresses/evmAddresses')
 
 //Creates a truffe contract from compiled artifacts.
 const AaveFlashLoanV3Factory = artifacts.require("AaveFlashLoanV3Factory")
@@ -22,7 +22,7 @@ describe( "AaveFlashLoanV3Factory contract", function () {
     let balance = await web3.eth.getBalance(accounts[0])
     assert.notEqual(balance, 0)
     //deploy contract
-    aaveFlashLoanFactory = await AaveFlashLoanV3Factory.new(AaveILendingPoolAddressesProviderv3, UniSwapV3RouterAddress, SushiSwapV2RouterAddress, '0xAB594600376Ec9fD91F8e885dADF0CE036862dE0');
+    aaveFlashLoanFactory = await AaveFlashLoanV3Factory.new(AaveILendingPoolAddressesProviderv3, UniSwapV3RouterAddress, SushiSwapV2RouterAddress, ChainLinkMaticToUSDTAddress);
     //const gasEstimate = await aaveFlashLoan.createInstance.estimateGas();
   });
 
@@ -34,10 +34,32 @@ describe( "AaveFlashLoanV3Factory contract", function () {
     assert.notEqual(web3.utils.fromWei(await aaveFlashLoanFactory.getMaticValueNeededForNewContract(),'ether'),0)
   })
 
-  it("Should create a new flash loan contract.", async function () {
-    await aaveFlashLoanFactory.createNewFlashLoanContract({from: accounts[1], value: web3.utils.toWei('50','ether')})
-    aaveFlashLoan = await AaveFlashLoan.at(await aaveFlashLoanFactory.getFlashLoanContract(accounts[1]))
+  it("Should fail to create a new flash loan contract.", async function () {
+    try{
+      await aaveFlashLoanFactory.createNewFlashLoanContract({from: accounts[1]})
+    }catch(error){}
+    
+    assert.equal((await aaveFlashLoanFactory.getAmountOfFlashLoansCreated()).toNumber(),0)
+  })
+
+  it("Should create a new flash loan contract with owner and no matic sent for payment.", async function () {
+    await aaveFlashLoanFactory.createNewFlashLoanContract({from: accounts[0]})
     assert.equal((await aaveFlashLoanFactory.getAmountOfFlashLoansCreated()).toNumber(),1)
+  })
+
+  it("Should create a new flash loan contract requiring correct matic amount.", async function () {
+    await aaveFlashLoanFactory.createNewFlashLoanContract({from: accounts[1], value: web3.utils.toWei('50','ether')})
+    let deployedAddress = await aaveFlashLoanFactory.getFlashLoanContract(accounts[1])
+    aaveFlashLoan = await AaveFlashLoan.at(deployedAddress)
+    assert.equal((await aaveFlashLoanFactory.getAmountOfFlashLoansCreated()).toNumber(),2)
+  })
+
+  it("Should fail to create new flash loan after changing USD amount needed.", async function () {
+    await aaveFlashLoanFactory.changeUSDAmount(10000)
+    try{
+      await aaveFlashLoanFactory.createNewFlashLoanContract({from: accounts[1], value: web3.utils.toWei('50','ether')})
+    }catch(error){}
+    assert.equal((await aaveFlashLoanFactory.getAmountOfFlashLoansCreated()).toNumber(),2)
   })
 
   it("Should withdraw any funds.", async function () {
@@ -66,7 +88,7 @@ describe( "AaveFlashLoanV3Factory contract", function () {
     //I am sending the wethAmountToTransfer to the contract to be swapped on
     //UniSwap V3 Pool for WBTC. The WBTC is then transferred back to the account
     //that sent the request.
-    await aaveFlashLoan.myFlashLoanCall(WETH, WBTC, 1, 500, web3.utils.toWei(wethAmountToTransfer.toString(),'ether'), 0, 5000000000, {from: accounts[0]})
+    await aaveFlashLoan.myFlashLoanCall(WETH, WBTC, 1, 3000, web3.utils.toWei(wethAmountToTransfer.toString(),'ether'), 0, 5000000000, {from: accounts[0]})
     let wethContractBalAfter = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
     assert.notEqual(wethContractBalAfter, 0)
   })
@@ -78,7 +100,7 @@ describe( "AaveFlashLoanV3Factory contract", function () {
     //I am sending the wethAmountToTransfer to the contract to be swapped on
     //UniSwap V3 Pool for WBTC. The WBTC is then transferred back to the account
     //that sent the request.
-    await aaveFlashLoan.myFlashLoanCall(WETH, WBTC, 0, 500, web3.utils.toWei(wethAmountToTransfer.toString(),'ether'), 0, 5000000000, {from: accounts[0]})
+    await aaveFlashLoan.myFlashLoanCall(WETH, WBTC, 0, 3000, web3.utils.toWei(wethAmountToTransfer.toString(),'ether'), 0, 5000000000, {from: accounts[0]})
     let wethContractBalAfter = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
     assert.notEqual(wethContractBalAfter, 0)
   })

@@ -33,6 +33,7 @@ contract AaveFlashLoanV3Factory {
         Owner information in a private variable
     */
     address immutable owner;
+    uint256 usdAmount = 50;
 
     /**
         Constructor takes in values on creation to be used by the AaveFlashLoanV3 contract creation.
@@ -60,7 +61,7 @@ contract AaveFlashLoanV3Factory {
     */
     function getMaticValueNeededForNewContract() view public returns(uint256 amountNeeded){
         uint256 latestAnswer = uint256(chainLinkOracle.latestAnswer());
-        amountNeeded = ((50*10**18)/latestAnswer)*10**8;
+        amountNeeded = ((usdAmount*10**18)/latestAnswer)*10**8;
     }
 
     /**
@@ -69,17 +70,21 @@ contract AaveFlashLoanV3Factory {
         to create the contract.
     */
     function createNewFlashLoanContract() public payable returns (address){
-        // Convert to minimum of $50 USD in matic value
-        uint256 minAmount = getMaticValueNeededForNewContract();
-        // Check to ensure minimum value amount was sent
-        require(msg.value >= minAmount, 'Need to send at least $50 USD worth of matic to purchase flash loan contract');
-        // Send $50 worth to owner
-        (bool success, ) =  owner.call{ value: minAmount }("");
-        require(success, "Transfer failed.");
-        // Refund extra amount sent if there is a balance on this account
-        if(address(this).balance > 0){
-            (bool successRefund, ) =  msg.sender.call{ value: msg.value-minAmount }("");
-            require(successRefund, "Transfer failed.");
+        // I will not try to take $50 USD if the owner of the factory is
+        // calling for a Flash Loan contract to be created.
+        if(address(msg.sender) != owner){
+            // Convert to minimum of $50 USD in matic value
+            uint256 minAmount = getMaticValueNeededForNewContract();
+            // Check to ensure minimum value amount was sent
+            require(msg.value >= minAmount, 'Need to send at least $50 USD worth of matic to purchase flash loan contract');
+            // Send $50 worth to owner
+            (bool success, ) =  owner.call{ value: minAmount }("");
+            require(success, "Transfer failed.");
+            // Refund extra amount sent if there is a balance on this account
+            if(address(this).balance > 0){
+                (bool successRefund, ) =  msg.sender.call{ value: msg.value-minAmount }("");
+                require(successRefund, "Transfer failed.");
+            }
         }
         // Create flash loan contract and adds it to AaveFlashLoanV3Mappings
         // so that users can retrieve their contract address if they have
@@ -122,5 +127,13 @@ contract AaveFlashLoanV3Factory {
     */
     function getAmountOfFlashLoansCreated() view external returns(uint256 amountCreated){
         amountCreated = mapSize;
+    }
+
+    /**
+        Function to change USD amount needed to create
+        contract.
+    */
+    function changeUSDAmount(uint256 setAmount) external onlyOwner {
+        usdAmount = setAmount;
     }
 }
