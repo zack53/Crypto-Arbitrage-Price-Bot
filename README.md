@@ -35,7 +35,7 @@ https://hardhat.org/getting-started/
 
 I am using hardhat to fork polygon mainnet for testing swapping contracts. The hardhat also provides good documentation for automating testing and deployment, which I am using in this project.
 
-I was able to easily verify my smart contract by following the steps located [here at coinsbench](https://coinsbench.com/verify-smart-contract-on-polygonscan-using-hardhat-9b8331dbd888).
+I was able to easily verify my smart contract on polygonscan by following the steps located [here at coinsbench](https://coinsbench.com/verify-smart-contract-on-polygonscan-using-hardhat-9b8331dbd888).
 
 ## UniSwap API
 UniSwap's V3 deployment addresses: https://docs.uniswap.org/protocol/reference/deployments .
