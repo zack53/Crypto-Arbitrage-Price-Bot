@@ -16,7 +16,9 @@ I want to be able to use this Crypto Arbitrage Price Bot to identify arbitrage o
 | Write Functions | Functions that anyone can call on the contract |
 | ----------- | ----------- |
 | createNewFlashLoanContract | Allows caller to create a new Flash Loan contract and assigns the owner to the caller. The Flash Loan contract allows you to execute a flash loan and either go from UniSwap to SushiSwap or vice versa depending on the dirction you give. | 
+
 | Read Functions | Functions that anyone can read on the contract |
+| ----------- | ----------- |
 | getFlashLoanContract | This allows for someone to pass in an address to get the flash loan deployment address linked the inpue. This is used in case you missed the contract address from the createNewFlashLoanContract function. You can input the address you used to create the contract and get the deployed Flash Loan location. |
 | getMaticValueNeededForNewContract | You can call this to figure out the amount of matic value you need to send with the createNewFlashLoanContract function for the process to succeed. |
 | getAmountOfFlashLoansCreated | The amount of people who have created a flash loan through the createNewFlashLoanContract |
