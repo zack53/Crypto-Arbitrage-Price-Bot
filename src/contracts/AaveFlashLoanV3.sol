@@ -15,8 +15,17 @@ import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 */
 contract AaveFlashLoanV3 is FlashLoanReceiverBase{
     
-    
+    /**
+        owner variable to ensure the user that purchased
+        this contract is the only one that can call certain
+        functions.
+    */
     address owner;
+    
+    /**
+        Variables used in construction variable to set
+        the correct addresses.
+    */
     ISwapRouter immutable uniSwapRouter;
     IUniswapV2Router02 immutable sushiRouter;
 
@@ -28,7 +37,6 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
         uniSwapRouter = _uniSwapRouter;
         sushiRouter = _sushiRouter;
     }
-
 
      /** 
         Modifies functions to only be called by address that
@@ -67,6 +75,7 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
         
         return true;
     }
+
     /**
         This is the function that starts the flash loan.
      */
@@ -101,6 +110,7 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
             referralCode
         );
     }
+
     /**
         Swapping mechanism that handles directional logic.
     */
@@ -108,27 +118,36 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
         (address token0, address token1, uint8 direction, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint8, uint24, uint256, uint256, uint256));
 
         address[] memory path = new address[](2);
-        // I set the reverse
+
+        // The direction is used to determine which DeFi exchange
+        // will be used first.
         if(direction == 1){
+
             // Call order to go from UniSwap to SushiSwap
             uint256 uniSwapAmountOut = uniSwapExactInputSingle(amountIn, amountOut, token0, token1, poolFee);  
+
             // Reverse direction to trade back to original token 
             path[0] = token1;
             path[1] = token0;
             sushiSwapExactInputSingle(uniSwapAmountOut, 0, path, deadline);
+
         }else{
+
             // Call order to go from SushiSwap to UniSwap
             path[0] = token0;
             path[1] = token1;
             uint256[] memory sushiSwapAmountOut = sushiSwapExactInputSingle(amountIn, amountOut, path, deadline);  
+
             // Reverse direction to trade back to original token 
             uniSwapExactInputSingle(sushiSwapAmountOut[1], 0, token1, token0, poolFee);
         }
     }
+
     /**
         Base function to use UniSwap V3 Swap Router
     */
     function uniSwapExactInputSingle(uint256 amountIn, uint256 amountOutMinimum, address token0, address token1, uint24 poolFee) internal returns (uint256 amountOut) {
+
         // Approve the router to spend current token0.
         TransferHelper.safeApprove(token0, address(uniSwapRouter), amountIn);
 
@@ -148,6 +167,7 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
         // The call to `exactInputSingle` executes the swap.
         amountOut = uniSwapRouter.exactInputSingle(params);
     }
+
     /**
         Base function to use SushiSwap Router
     */
@@ -155,7 +175,6 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
 
         // Approve the router to spend WBTC.
         TransferHelper.safeApprove(path[0], address(sushiRouter), amountIn);
-
 
         // The call to `exactInputSingle` executes the swap.
         amountOut = sushiRouter.swapExactTokensForTokens(amountIn, amountOutMin, path, address(this), deadline);
@@ -192,4 +211,5 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
      function transferOwnership(address newOwner) external onlyOwner {
          owner = newOwner;
      }
+
 }

@@ -6,9 +6,6 @@ import {ISwapRouter} from '@uniswap/v3-periphery/contracts/interfaces/ISwapRoute
 import {IUniswapV2Router02} from '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 import './interfaces/IChainLinkOracle.sol';
 
-
-import 'hardhat/console.sol';
-
 contract AaveFlashLoanV3Factory {
 
     /** 
@@ -20,20 +17,22 @@ contract AaveFlashLoanV3Factory {
 
     /**
         Chain link oracle variable to get
-        latestAnswer()
+        latestAnswer() and variable for
+        USD amount needed.
     */
     IChainLinkOracle public immutable chainLinkOracle;
+    uint256 usdAmount = 50;
 
     /**
-        Stores flash loan addresses in an array
+        Stores flash loan addresses in a mapping
     */
     mapping(address => address) AaveFlashLoanV3Mappings;
     uint256 mapSize;
+
     /**
         Owner information in a private variable
     */
     address immutable owner;
-    uint256 usdAmount = 50;
 
     /**
         Constructor takes in values on creation to be used by the AaveFlashLoanV3 contract creation.
@@ -66,24 +65,24 @@ contract AaveFlashLoanV3Factory {
 
     /**
         Creates a new flash loan and sets the owner to the person that
-        called this function. Requires at least $50 USD of matic value 
+        called this function. Requires at least usdAmount of matic value 
         to create the contract.
     */
     function createNewFlashLoanContract() public payable returns (address){
-        // I will not try to take $50 USD if the owner of the factory is
+        // I will not try to take usdAmount if the owner of the factory is
         // calling for a Flash Loan contract to be created.
         if(address(msg.sender) != owner){
-            // Convert to minimum of $50 USD in matic value
+            // Convert to minimum of usdAmount USD in matic value
             uint256 minAmount = getMaticValueNeededForNewContract();
             // Check to ensure minimum value amount was sent
-            require(msg.value >= minAmount, 'Need to send at least $50 USD worth of matic to purchase flash loan contract');
-            // Send $50 worth to owner
+            require(msg.value >= minAmount, 'Need to send a minimum amount of matic to purchase flash loan contract. Any leftover funds are returned. View getMaticValueNeededForNewContract for current matic amount needed.');
+            // Send usdAmount worth to owner
             (bool success, ) =  owner.call{ value: minAmount }("");
-            require(success, "Transfer failed.");
+            require(success, "Transfer to owner failed.");
             // Refund extra amount sent if there is a balance on this account
             if(address(this).balance > 0){
                 (bool successRefund, ) =  msg.sender.call{ value: msg.value-minAmount }("");
-                require(successRefund, "Transfer failed.");
+                require(successRefund, "Refund to user failed.");
             }
         }
         // Create flash loan contract and adds it to AaveFlashLoanV3Mappings
@@ -98,7 +97,7 @@ contract AaveFlashLoanV3Factory {
 
     /**
         Withdraw function to be used in case any funds are left on
-        the contract.
+        the contract. Only the factory owner can withdraw funds.
     */
     function withdraw() external payable onlyOwner(){
         (bool success, ) =  owner.call{ value: address(this).balance }("");
@@ -131,7 +130,8 @@ contract AaveFlashLoanV3Factory {
 
     /**
         Function to change USD amount needed to create
-        contract.
+        contract. Should only be altered by factory 
+        owner.
     */
     function changeUSDAmount(uint256 setAmount) external onlyOwner {
         usdAmount = setAmount;
