@@ -33,15 +33,15 @@ describe( "AaveFlashLoanV3Factory contract", function () {
   it('Should get matic value needed', async () => {
     assert.notEqual(web3.utils.fromWei(await aaveFlashLoanFactory.getMaticValueNeededForNewContract(),'ether'),0)
   })
-  it("Should not have an item at position 0 of the array.", async function () {
-    try{
-      await aaveFlashLoanFactory.AaveFlashLoanV3Contracts(0)
-    }catch(error){}
+
+  it("Should create a new flash loan contract.", async function () {
+    await aaveFlashLoanFactory.createNewFlashLoanContract({from: accounts[1], value: web3.utils.toWei('50','ether')})
+    aaveFlashLoan = await AaveFlashLoan.at(await aaveFlashLoanFactory.getFlashLoanContract(accounts[1]))
+    assert.equal((await aaveFlashLoanFactory.getAmountOfFlashLoansCreated()).toNumber(),1)
   })
 
-  it("Should create an item at position 0 of the array.", async function () {
-    await aaveFlashLoanFactory.createNewFlashLoanContract({from: accounts[1], value: web3.utils.toWei('50','ether')})
-    aaveFlashLoan = await AaveFlashLoan.at(await aaveFlashLoanFactory.AaveFlashLoanV3Contracts(0))
+  it("Should withdraw any funds.", async function () {
+    await aaveFlashLoanFactory.withdraw()
   })
 
   it('Should transfer ownership.', async function () {
