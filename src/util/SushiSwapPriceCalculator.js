@@ -46,14 +46,14 @@ class SushiSwapPriceCalculator{
      * @param {*} amount 
      * @returns 
      */
-    async getPairPrice(amount){
+    async getPairPrice(){
         let {_reserve0, _reserve1} = await this.pairContract.methods.getReserves().call()
         if(this.token0Decimals == ''){
             let {token0Decimals, token1Decimals} = await this.getTokenDecimals()
             this.token0Decimals = token0Decimals
             this.token1Decimals = token1Decimals
         }
-        return this.calculatePrice(amount,_reserve0,_reserve1,this.token0Decimals,this.token1Decimals)
+        return this.calculatePrice(1,_reserve0,_reserve1,this.token0Decimals,this.token1Decimals)
     }
 
     /**
