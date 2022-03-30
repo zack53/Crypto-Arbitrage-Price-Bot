@@ -10,8 +10,8 @@ I want to be able to use this Crypto Arbitrage Price Bot to identify arbitrage o
 ## Deployed Contracts
 
 **Polygon Mainnet Address**
-**AaveFlashLoanV3Factory** - [0x25C80aB76f81d5689c7B29Abe11f76DD3279A1bD](https://polygonscan.com/address/0x25C80aB76f81d5689c7B29Abe11f76DD3279A1bD)
-**AaveFlashLoanV3** - [0x3acee0e0e5bd7ce1d24edcf2240c1557e741cf0f](https://polygonscan.com/address/0x3acee0e0e5bd7ce1d24edcf2240c1557e741cf0f)
+**AaveFlashLoanV3Factory** - [0xf794EfD64DE04EfeEA9bd708c5122e16e6246Ef4](https://polygonscan.com/address/0xeb1a2c696602ec6349242fd78c3398aef0a8ad07)
+**AaveFlashLoanV3** - [0xf794EfD64DE04EfeEA9bd708c5122e16e6246Ef4](https://polygonscan.com/address/0xf794efd64de04efeea9bd708c5122e16e6246ef4)
 
 ### AaveFlashLoanV3Factory
 | Write Functions | Functions that anyone can call on the contract |
@@ -39,6 +39,9 @@ I want to be able to use this Crypto Arbitrage Price Bot to identify arbitrage o
 
 | Read Functions | Functions that anyone can read on the contract |
 | ----------- | ----------- |
+| ADDRESSES_PROVIDER | The Aave Address that provides the POOL address |
+| POOL | The pool contract address that the flashLoan is called on |
+| getOwner | The current Owner of the Flash Loan Contract |
 
 # Useful Resources
 
