@@ -1,0 +1,791 @@
+{
+	"compiler": {
+		"version": "0.8.10+commit.fc410830"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "oldAddress",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newAddress",
+						"type": "address"
+					}
+				],
+				"name": "ACLAdminUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "oldAddress",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newAddress",
+						"type": "address"
+					}
+				],
+				"name": "ACLManagerUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "id",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "oldAddress",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newAddress",
+						"type": "address"
+					}
+				],
+				"name": "AddressSet",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "id",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "proxyAddress",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "oldImplementationAddress",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newImplementationAddress",
+						"type": "address"
+					}
+				],
+				"name": "AddressSetAsProxy",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "string",
+						"name": "oldMarketId",
+						"type": "string"
+					},
+					{
+						"indexed": true,
+						"internalType": "string",
+						"name": "newMarketId",
+						"type": "string"
+					}
+				],
+				"name": "MarketIdSet",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "oldAddress",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newAddress",
+						"type": "address"
+					}
+				],
+				"name": "PoolConfiguratorUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "oldAddress",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newAddress",
+						"type": "address"
+					}
+				],
+				"name": "PoolDataProviderUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "oldAddress",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newAddress",
+						"type": "address"
+					}
+				],
+				"name": "PoolUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "oldAddress",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newAddress",
+						"type": "address"
+					}
+				],
+				"name": "PriceOracleSentinelUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "oldAddress",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newAddress",
+						"type": "address"
+					}
+				],
+				"name": "PriceOracleUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "id",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "proxyAddress",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "implementationAddress",
+						"type": "address"
+					}
+				],
+				"name": "ProxyCreated",
+				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "getACLAdmin",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getACLManager",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "id",
+						"type": "bytes32"
+					}
+				],
+				"name": "getAddress",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getMarketId",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getPool",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getPoolConfigurator",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getPoolDataProvider",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getPriceOracle",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getPriceOracleSentinel",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newAclAdmin",
+						"type": "address"
+					}
+				],
+				"name": "setACLAdmin",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newAclManager",
+						"type": "address"
+					}
+				],
+				"name": "setACLManager",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "id",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "address",
+						"name": "newAddress",
+						"type": "address"
+					}
+				],
+				"name": "setAddress",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes32",
+						"name": "id",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "address",
+						"name": "newImplementationAddress",
+						"type": "address"
+					}
+				],
+				"name": "setAddressAsProxy",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "newMarketId",
+						"type": "string"
+					}
+				],
+				"name": "setMarketId",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newPoolConfiguratorImpl",
+						"type": "address"
+					}
+				],
+				"name": "setPoolConfiguratorImpl",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newDataProvider",
+						"type": "address"
+					}
+				],
+				"name": "setPoolDataProvider",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newPoolImpl",
+						"type": "address"
+					}
+				],
+				"name": "setPoolImpl",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newPriceOracle",
+						"type": "address"
+					}
+				],
+				"name": "setPriceOracle",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newPriceOracleSentinel",
+						"type": "address"
+					}
+				],
+				"name": "setPriceOracleSentinel",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"author": "Aave",
+			"events": {
+				"ACLAdminUpdated(address,address)": {
+					"details": "Emitted when the ACL admin is updated.",
+					"params": {
+						"newAddress": "The new address of the ACLAdmin",
+						"oldAddress": "The old address of the ACLAdmin"
+					}
+				},
+				"ACLManagerUpdated(address,address)": {
+					"details": "Emitted when the ACL manager is updated.",
+					"params": {
+						"newAddress": "The new address of the ACLManager",
+						"oldAddress": "The old address of the ACLManager"
+					}
+				},
+				"AddressSet(bytes32,address,address)": {
+					"details": "Emitted when a new non-proxied contract address is registered.",
+					"params": {
+						"id": "The identifier of the contract",
+						"newAddress": "The address of the new contract",
+						"oldAddress": "The address of the old contract"
+					}
+				},
+				"AddressSetAsProxy(bytes32,address,address,address)": {
+					"details": "Emitted when the implementation of the proxy registered with id is updated",
+					"params": {
+						"id": "The identifier of the contract",
+						"newImplementationAddress": "The address of the new implementation contract",
+						"oldImplementationAddress": "The address of the old implementation contract",
+						"proxyAddress": "The address of the proxy contract"
+					}
+				},
+				"MarketIdSet(string,string)": {
+					"details": "Emitted when the market identifier is updated.",
+					"params": {
+						"newMarketId": "The new id of the market",
+						"oldMarketId": "The old id of the market"
+					}
+				},
+				"PoolConfiguratorUpdated(address,address)": {
+					"details": "Emitted when the pool configurator is updated.",
+					"params": {
+						"newAddress": "The new address of the PoolConfigurator",
+						"oldAddress": "The old address of the PoolConfigurator"
+					}
+				},
+				"PoolDataProviderUpdated(address,address)": {
+					"details": "Emitted when the pool data provider is updated.",
+					"params": {
+						"newAddress": "The new address of the PoolDataProvider",
+						"oldAddress": "The old address of the PoolDataProvider"
+					}
+				},
+				"PoolUpdated(address,address)": {
+					"details": "Emitted when the pool is updated.",
+					"params": {
+						"newAddress": "The new address of the Pool",
+						"oldAddress": "The old address of the Pool"
+					}
+				},
+				"PriceOracleSentinelUpdated(address,address)": {
+					"details": "Emitted when the price oracle sentinel is updated.",
+					"params": {
+						"newAddress": "The new address of the PriceOracleSentinel",
+						"oldAddress": "The old address of the PriceOracleSentinel"
+					}
+				},
+				"PriceOracleUpdated(address,address)": {
+					"details": "Emitted when the price oracle is updated.",
+					"params": {
+						"newAddress": "The new address of the PriceOracle",
+						"oldAddress": "The old address of the PriceOracle"
+					}
+				},
+				"ProxyCreated(bytes32,address,address)": {
+					"details": "Emitted when a new proxy is created.",
+					"params": {
+						"id": "The identifier of the proxy",
+						"implementationAddress": "The address of the implementation contract",
+						"proxyAddress": "The address of the created proxy contract"
+					}
+				}
+			},
+			"kind": "dev",
+			"methods": {
+				"getACLAdmin()": {
+					"returns": {
+						"_0": "The address of the ACL admin"
+					}
+				},
+				"getACLManager()": {
+					"returns": {
+						"_0": "The address of the ACLManager"
+					}
+				},
+				"getAddress(bytes32)": {
+					"details": "The returned address might be an EOA or a contract, potentially proxiedIt returns ZERO if there is no registered address with the given id",
+					"params": {
+						"id": "The id"
+					},
+					"returns": {
+						"_0": "The address of the registered for the specified id"
+					}
+				},
+				"getMarketId()": {
+					"returns": {
+						"_0": "The market id*"
+					}
+				},
+				"getPool()": {
+					"returns": {
+						"_0": "The Pool proxy address*"
+					}
+				},
+				"getPoolConfigurator()": {
+					"returns": {
+						"_0": "The PoolConfigurator proxy address*"
+					}
+				},
+				"getPoolDataProvider()": {
+					"returns": {
+						"_0": "The address of the DataProvider"
+					}
+				},
+				"getPriceOracle()": {
+					"returns": {
+						"_0": "The address of the PriceOracle"
+					}
+				},
+				"getPriceOracleSentinel()": {
+					"returns": {
+						"_0": "The address of the PriceOracleSentinel"
+					}
+				},
+				"setACLAdmin(address)": {
+					"params": {
+						"newAclAdmin": "The address of the new ACL admin"
+					}
+				},
+				"setACLManager(address)": {
+					"params": {
+						"newAclManager": "The address of the new ACLManager*"
+					}
+				},
+				"setAddress(bytes32,address)": {
+					"details": "IMPORTANT Use this function carefully, as it will do a hard replacement",
+					"params": {
+						"id": "The id",
+						"newAddress": "The address to set"
+					}
+				},
+				"setAddressAsProxy(bytes32,address)": {
+					"details": "IMPORTANT Use this function carefully, only for ids that don't have an explicit setter function, in order to avoid unexpected consequences",
+					"params": {
+						"id": "The id",
+						"newImplementationAddress": "The address of the new implementation"
+					}
+				},
+				"setMarketId(string)": {
+					"details": "This can be used to create an onchain registry of PoolAddressesProviders to identify and validate multiple Aave markets.",
+					"params": {
+						"newMarketId": "The market id"
+					}
+				},
+				"setPoolConfiguratorImpl(address)": {
+					"params": {
+						"newPoolConfiguratorImpl": "The new PoolConfigurator implementation*"
+					}
+				},
+				"setPoolDataProvider(address)": {
+					"params": {
+						"newDataProvider": "The address of the new DataProvider*"
+					}
+				},
+				"setPoolImpl(address)": {
+					"params": {
+						"newPoolImpl": "The new Pool implementation*"
+					}
+				},
+				"setPriceOracle(address)": {
+					"params": {
+						"newPriceOracle": "The address of the new PriceOracle"
+					}
+				},
+				"setPriceOracleSentinel(address)": {
+					"params": {
+						"newPriceOracleSentinel": "The address of the new PriceOracleSentinel*"
+					}
+				}
+			},
+			"title": "IPoolAddressesProvider",
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {
+				"getACLAdmin()": {
+					"notice": "Returns the address of the ACL admin."
+				},
+				"getACLManager()": {
+					"notice": "Returns the address of the ACL manager."
+				},
+				"getAddress(bytes32)": {
+					"notice": "Returns an address by its identifier."
+				},
+				"getMarketId()": {
+					"notice": "Returns the id of the Aave market to which this contract points to."
+				},
+				"getPool()": {
+					"notice": "Returns the address of the Pool proxy."
+				},
+				"getPoolConfigurator()": {
+					"notice": "Returns the address of the PoolConfigurator proxy."
+				},
+				"getPoolDataProvider()": {
+					"notice": "Returns the address of the data provider."
+				},
+				"getPriceOracle()": {
+					"notice": "Returns the address of the price oracle."
+				},
+				"getPriceOracleSentinel()": {
+					"notice": "Returns the address of the price oracle sentinel."
+				},
+				"setACLAdmin(address)": {
+					"notice": "Updates the address of the ACL admin."
+				},
+				"setACLManager(address)": {
+					"notice": "Updates the address of the ACL manager."
+				},
+				"setAddress(bytes32,address)": {
+					"notice": "Sets an address for an id replacing the address saved in the addresses map."
+				},
+				"setAddressAsProxy(bytes32,address)": {
+					"notice": "General function to update the implementation of a proxy registered with certain `id`. If there is no proxy registered, it will instantiate one and set as implementation the `newImplementationAddress`."
+				},
+				"setMarketId(string)": {
+					"notice": "Associates an id with a specific PoolAddressesProvider."
+				},
+				"setPoolConfiguratorImpl(address)": {
+					"notice": "Updates the implementation of the PoolConfigurator, or creates a proxy setting the new `PoolConfigurator` implementation when the function is called for the first time."
+				},
+				"setPoolDataProvider(address)": {
+					"notice": "Updates the address of the data provider."
+				},
+				"setPoolImpl(address)": {
+					"notice": "Updates the implementation of the Pool, or creates a proxy setting the new `pool` implementation when the function is called for the first time."
+				},
+				"setPriceOracle(address)": {
+					"notice": "Updates the address of the price oracle."
+				},
+				"setPriceOracleSentinel(address)": {
+					"notice": "Updates the address of the price oracle sentinel."
+				}
+			},
+			"notice": "Defines the basic interface for a Pool Addresses Provider.*",
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"src/contracts/AaveFlashLoanV3Factory.sol": "IPoolAddressesProvider"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 1000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"src/contracts/AaveFlashLoanV3Factory.sol": {
+			"keccak256": "0x748119871fc01f4631417e6157479c005201bbd2dac097aa13084b39dd65cce7",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://74a3fd38f14b290f0ff4f6f345c71bfb5fd573e7711b64f424aca9d0ec01204a",
+				"dweb:/ipfs/QmaD1nNmW2pEurm1weL4bM8YpFJEz84aKX1aajWzY4JPJK"
+			]
+		}
+	},
+	"version": 1
+}

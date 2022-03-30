@@ -1,0 +1,255 @@
+{
+	"compiler": {
+		"version": "0.8.10+commit.fc410830"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "contract IPoolAddressesProvider",
+						"name": "_addressProvider",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					},
+					{
+						"internalType": "contract ISwapRouter",
+						"name": "_uniSwapRouter",
+						"type": "address"
+					},
+					{
+						"internalType": "contract IUniswapV2Router02",
+						"name": "_sushiRouter",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [],
+				"name": "ADDRESSES_PROVIDER",
+				"outputs": [
+					{
+						"internalType": "contract IPoolAddressesProvider",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "POOL",
+				"outputs": [
+					{
+						"internalType": "contract IPool",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address[]",
+						"name": "assets",
+						"type": "address[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "amounts",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "premiums",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "address",
+						"name": "initiator",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes",
+						"name": "params",
+						"type": "bytes"
+					}
+				],
+				"name": "executeOperation",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getOwner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "token0",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "token1",
+						"type": "address"
+					},
+					{
+						"internalType": "uint8",
+						"name": "direction",
+						"type": "uint8"
+					},
+					{
+						"internalType": "uint24",
+						"name": "poolFee",
+						"type": "uint24"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amountIn",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amountOut",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "deadline",
+						"type": "uint256"
+					}
+				],
+				"name": "myFlashLoanCall",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "withdraw",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "token",
+						"type": "address"
+					}
+				],
+				"name": "withdrawERC20Token",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "currentAmount",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {
+				"constructor": {
+					"notice": "Intantiate lending pool addresses provider and get lending pool address"
+				},
+				"executeOperation(address[],uint256[],uint256[],address,bytes)": {
+					"notice": "This function is called after your contract has received the flash loaned amount"
+				},
+				"getOwner()": {
+					"notice": "Function to get owner information that keeps  the owner variable private."
+				},
+				"myFlashLoanCall(address,address,uint8,uint24,uint256,uint256,uint256)": {
+					"notice": "This is the function that starts the flash loan."
+				},
+				"transferOwnership(address)": {
+					"notice": "Change the owner of the contract."
+				},
+				"withdraw()": {
+					"notice": "Withdraw function to be used in case any funds are left over."
+				},
+				"withdrawERC20Token(address)": {
+					"notice": "Withdraw provided ERC20 token."
+				}
+			},
+			"notice": "Contract to call a Flash Loan and make token swaps from UniSwap and SushiSwap. The direction of which to use first can be controlled by providing a 1 to start with UniSwap or any other number acceptable for uint8 to  start with SushiSwap.",
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"src/contracts/AaveFlashLoanV3Factory.sol": "AaveFlashLoanV3"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 1000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"src/contracts/AaveFlashLoanV3Factory.sol": {
+			"keccak256": "0x748119871fc01f4631417e6157479c005201bbd2dac097aa13084b39dd65cce7",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://74a3fd38f14b290f0ff4f6f345c71bfb5fd573e7711b64f424aca9d0ec01204a",
+				"dweb:/ipfs/QmaD1nNmW2pEurm1weL4bM8YpFJEz84aKX1aajWzY4JPJK"
+			]
+		}
+	},
+	"version": 1
+}

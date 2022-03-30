@@ -1,0 +1,347 @@
+{
+	"compiler": {
+		"version": "0.8.10+commit.fc410830"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "contract IPoolAddressesProvider",
+						"name": "_addressProvider",
+						"type": "address"
+					},
+					{
+						"internalType": "contract ISwapRouter",
+						"name": "_uniSwapRouter",
+						"type": "address"
+					},
+					{
+						"internalType": "contract IUniswapV2Router02",
+						"name": "_sushiRouter",
+						"type": "address"
+					},
+					{
+						"internalType": "contract IChainLinkOracle",
+						"name": "_oracle",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [],
+				"name": "addressProvider",
+				"outputs": [
+					{
+						"internalType": "contract IPoolAddressesProvider",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "chainLinkOracle",
+				"outputs": [
+					{
+						"internalType": "contract IChainLinkOracle",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "setAmount",
+						"type": "uint256"
+					}
+				],
+				"name": "changeUSDAmount",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "createNewFlashLoanContract",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getAmountOfFlashLoansCreated",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "amountCreated",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "creatorAddress",
+						"type": "address"
+					}
+				],
+				"name": "getFlashLoanContract",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "flashLoanContractAddress",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getMaticValueNeededForNewContract",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "amountNeeded",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getOwner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "sushiRouter",
+				"outputs": [
+					{
+						"internalType": "contract IUniswapV2Router02",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "uniSwapRouter",
+				"outputs": [
+					{
+						"internalType": "contract ISwapRouter",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "withdraw",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {
+				"addressProvider()": {
+					"notice": "Address variables needed to create new contract."
+				},
+				"chainLinkOracle()": {
+					"notice": "Chain link oracle variable to get latestAnswer() and variable for USD amount needed."
+				},
+				"changeUSDAmount(uint256)": {
+					"notice": "Function to change USD amount needed to create contract. Should only be altered by factory  owner."
+				},
+				"constructor": {
+					"notice": "Constructor takes in values on creation to be used by the AaveFlashLoanV3 contract creation."
+				},
+				"createNewFlashLoanContract()": {
+					"notice": "Creates a new flash loan and sets the owner to the person that called this function. Requires at least usdAmount of matic value  to create the contract."
+				},
+				"getAmountOfFlashLoansCreated()": {
+					"notice": "Function to get current size of contracts created through the factory."
+				},
+				"getFlashLoanContract(address)": {
+					"notice": "Function to get Flash Loan contract for a specific creator address."
+				},
+				"getMaticValueNeededForNewContract()": {
+					"notice": "Function to be used by someone who wants to know current value needed to create a new Flash Loan contract."
+				},
+				"getOwner()": {
+					"notice": "Function to get owner information that keeps  the owner variable private."
+				},
+				"withdraw()": {
+					"notice": "Withdraw function to be used in case any funds are left on the contract. Only the factory owner can withdraw funds."
+				}
+			},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"src/contracts/AaveFlashLoanV3Factory.sol": "AaveFlashLoanV3Factory"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 1000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+			"keccak256": "0xbbc8ac883ac3c0078ce5ad3e288fbb3ffcc8a30c3a98c0fda0114d64fc44fca2",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://87a7a5d2f6f63f84598af02b8c50ca2df2631cb8ba2453e8d95fcb17e4be9824",
+				"dweb:/ipfs/QmR76hqtAcRqoFj33tmNjcWTLrgNsAaakYwnKZ8zoJtKei"
+			]
+		},
+		"@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol": {
+			"keccak256": "0x8a3c5c449d4b7cd76513ed6995f4b86e4a86f222c770f8442f5fc128ce29b4d2",
+			"urls": [
+				"bzz-raw://1df63ca373dafae3bd0ee7fe70f890a1dc7c45ed869c01de68413e0e97ff9deb",
+				"dweb:/ipfs/QmefJgEYGUL8KX7kQKYTrDweF8GB7yjy3nw5Bmqzryg7PG"
+			]
+		},
+		"@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol": {
+			"keccak256": "0x744e30c133bd0f7ca9e7163433cf6d72f45c6bb1508c2c9c02f1a6db796ae59d",
+			"urls": [
+				"bzz-raw://9bf2f4454ad63d4cff03a0630e787d9e8a9deed80aec89682cd8ad6379d9ef8c",
+				"dweb:/ipfs/Qme51hQNR2wpax7ooUadhtqLtXm8ffeVVYyubLkTT4wMCG"
+			]
+		},
+		"@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol": {
+			"keccak256": "0x3f485fb1a44e8fbeadefb5da07d66edab3cfe809f0ac4074b1e54e3eb3c4cf69",
+			"license": "GPL-2.0-or-later",
+			"urls": [
+				"bzz-raw://095ce0626b41318c772b3ebf19d548282607f6a8f3d6c41c13edfbd5370c8652",
+				"dweb:/ipfs/QmVDZfJJ89UUCE1hMyzqpkZAtQ8jUsBgZNE5AMRG7RzRFS"
+			]
+		},
+		"@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol": {
+			"keccak256": "0x9bfaf1feb32814623e627ab70f2409760b15d95f1f9b058e2b3399a8bb732975",
+			"license": "GPL-2.0-or-later",
+			"urls": [
+				"bzz-raw://a8a2c3e55965b61bcd91993d8e1d5d34b8b8a63e0fdfce87a85f6af92526fd53",
+				"dweb:/ipfs/QmQj2CSCSwqDSU4KMNWxGsN2336Cy64WgpV1X1EHXNZWxM"
+			]
+		},
+		"@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol": {
+			"keccak256": "0x9af98b0908c96320ca6d08b22f0efca864742f6adbe5794cafe2d1d2e808b0cd",
+			"license": "GPL-2.0-or-later",
+			"urls": [
+				"bzz-raw://da1d1e81e5bf534f0bf2934b3193db6cb1933f91ec006d2b88e9ad10a617a2d2",
+				"dweb:/ipfs/QmcPBk47QLMFWcX2y2S9eMFsJgoYWBd3R8ey55Bgmv6w6v"
+			]
+		},
+		"src/contracts/AaveFlashLoanV3.sol": {
+			"keccak256": "0x891b4d02130666de2319c19ed1d161a49bf0fc8ec31be8c63c08a93c7ddb7e76",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://355e6f7da261000de8dd6ec408ff214b91e4b2f41edebde5c99130fde33b505e",
+				"dweb:/ipfs/QmenrRM85vZGgCPK25Uw7hwe1G1WcSScz1EBHULMoYy8aD"
+			]
+		},
+		"src/contracts/AaveFlashLoanV3Factory.sol": {
+			"keccak256": "0x3228eae25e307ebb23359c65b07889473b415801dfe1f6f4ebab8e528fe2eae7",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://7182ac509e4e64428318fcbd54e4a02dc6c4e561d93da303e0c4f7b5f9f40236",
+				"dweb:/ipfs/QmYjvu9Sg6BWAsDfDLNfhUyw3ycWJKkdix9v4bpsKJeji7"
+			]
+		},
+		"src/contracts/base/FlashLoanReceiverBase.sol": {
+			"keccak256": "0x8b9a7d42f71c5a60e00c0bade77a7737a7992e2996bcccc9e54893ff13a7dd82",
+			"license": "AGPL-3.0",
+			"urls": [
+				"bzz-raw://b20c3c6e7cc2844a2acf18e9146a13b9a3a29c6e690e034f50759e0168795a48",
+				"dweb:/ipfs/QmeUAf8Gmh2X64NGvBWwaWne6UZQyp9tjLwV2hyR2zsZPk"
+			]
+		},
+		"src/contracts/interfaces/IChainLinkOracle.sol": {
+			"keccak256": "0xbb7de62cba47fcd1c63c4e29e177440924b2d96270c201ce151fcec131a8a95a",
+			"urls": [
+				"bzz-raw://373fc56125a83c82752a32abe4ab9c2e51f30b6fc696611d3c59fc42cd4c9caa",
+				"dweb:/ipfs/QmPqxub8tKExVUsHecK3dMcMBnTsvfnhsupB73qH7UfM8g"
+			]
+		},
+		"src/contracts/interfaces/IFlashLoanReceiver.sol": {
+			"keccak256": "0x2526fbb3d7b00c047c388bdb0d85864f38b3267488f01d167800d97f1b176130",
+			"license": "AGPL-3.0",
+			"urls": [
+				"bzz-raw://e3342272ecdccd3106c55f06558aa2b8686648d4f72bedb2aeb481d49c9e50a8",
+				"dweb:/ipfs/QmTHvZgkuQWFbyQ98FBGHwqmz19hHk2RbnAECrFPgKisEY"
+			]
+		},
+		"src/contracts/interfaces/IPool.sol": {
+			"keccak256": "0x056de4f5977a920d2718f2c63c4425c61335966bf0e3abd82e55477e3fd560e1",
+			"license": "AGPL-3.0",
+			"urls": [
+				"bzz-raw://a860bf97bdc2ab424e70c526da7ca9348cdd71697e05c19a6eddbdd2a4e1f362",
+				"dweb:/ipfs/QmWThdtnk6jCWhbUaa6oQKUuqC8x6b2Gg5MYM1vBx62apC"
+			]
+		},
+		"src/contracts/interfaces/IPoolAddressesProvider.sol": {
+			"keccak256": "0xac7449302fb0fd43b94ef870fd4daf79205af572cc75be16496972f6ea1be2c6",
+			"license": "AGPL-3.0",
+			"urls": [
+				"bzz-raw://4cdeca7cf87bfa061090f201e447c1020a5f74a5e422bf9aae4034960d7836ad",
+				"dweb:/ipfs/QmPgiPpKmyiizCRHQpHzkUmoxEJrCJupV2erZEagUDVWdh"
+			]
+		},
+		"src/contracts/protocol/DataTypes.sol": {
+			"keccak256": "0x68b21728670e54a3d50980d8fa1836c6eeee56ae5cb5e94f1f45b573909d307a",
+			"license": "BUSL-1.1",
+			"urls": [
+				"bzz-raw://f781f0ce051aae0a27d948c5d72775eb62903d30368da611de2e95ca08b71420",
+				"dweb:/ipfs/QmfMKoVn5xijjXVvpdMVeXCgeXUpTnFXVR2EvkHVfJcRfZ"
+			]
+		}
+	},
+	"version": 1
+}
