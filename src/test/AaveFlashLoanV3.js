@@ -64,6 +64,8 @@ describe( "AaveFlashLoanV3 contract", function () {
       try{
         await aaveFlashLoan.withdrawERC20Token(WETH, {from: accounts[1]});
       }catch(error){}
+      let wethContractBalAfter = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+      assert.equal(wethContractBal,wethContractBalAfter)
     }
     let wethContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
     assert.notEqual(wethContractBalAfterWithdraw, 0)
@@ -89,14 +91,14 @@ describe( "AaveFlashLoanV3 contract", function () {
 
   it('Should transfer ownership.', async function () {
     await aaveFlashLoan.transferOwnership(accounts[1]);
-    assert.equal(await aaveFlashLoan.owner(), accounts[1])
+    assert.equal(await aaveFlashLoan.getOwner(), accounts[1])
   })
 
   it('Should fail to transfer ownership.', async function () {
     try{
       await aaveFlashLoan.transferOwnership(accounts[2]);
     }catch(error){}
-    assert.equal(await aaveFlashLoan.owner(), accounts[1])
+    assert.equal(await aaveFlashLoan.getOwner(), accounts[1])
   })
 
 })

@@ -112,8 +112,8 @@ describe( "AaveFlashLoanV3Factory contract", function () {
         await aaveFlashLoan.withdrawERC20Token(WETH, {from: accounts[1]});
       }catch(error){}
     }
-    let wethContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
-    assert.notEqual(wethContractBalAfterWithdraw, 0)
+    let wethContractBalAfter = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
+    assert.equal(wethContractBal,wethContractBalAfter)
   })
 
   it('Should withdraw all WETH token.', async function () {

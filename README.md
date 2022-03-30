@@ -10,7 +10,8 @@ I want to be able to use this Crypto Arbitrage Price Bot to identify arbitrage o
 ## Deployed Contracts
 
 **Polygon Mainnet Address**
-**AaveFlashLoanV3Factory** - [0x25C80aB76f81d5689c7B29Abe11f76DD3279A1bD](https://polygonscan.com/address/0x25C80aB76f81d5689c7B29Abe11f76DD3279A1bD)
+**AaveFlashLoanV3Factory** - [0xf794EfD64DE04EfeEA9bd708c5122e16e6246Ef4](https://polygonscan.com/address/0xeb1a2c696602ec6349242fd78c3398aef0a8ad07)
+**AaveFlashLoanV3** - [0xf794EfD64DE04EfeEA9bd708c5122e16e6246Ef4](https://polygonscan.com/address/0xf794efd64de04efeea9bd708c5122e16e6246ef4)
 
 ### AaveFlashLoanV3Factory
 | Write Functions | Functions that anyone can call on the contract |
@@ -26,6 +27,21 @@ I want to be able to use this Crypto Arbitrage Price Bot to identify arbitrage o
 | getOwner | Address for the owner of the AaveFlashLoanV3Factory |
 | sushiRouter | Address for the Sushi Router used |
 | uniSwapRouter | Address for the UniSwap Router used |
+
+### AaveFlashLoanV3
+
+| Write Functions | Functions that owner can call on the contract |
+| ----------- | ----------- |
+| myFlashLoanCall | Requires token0, token1, direction: 1 for token0 -> token1 using UniSwap and token1 -> token0 using SushiSwap 0 for SushiSwap to UniSwap, poolFee (required for UniSwap), amountIn, amountOut, deadline (required for SushiSwap). Executing this function will call a flash loan for the amountIn and start a trade from token0 to token1 and then from token1 back to token0 using the other exchange depending on the direction. Leaving the amountOut as 0 will ensure a trade happens. The trade will fail if there isn't enough token0 left on the contract for the premium Aave charges + the loan amount to be withdrawn. Only the owner of the Flash Loan contract will be able to execute this function. |
+| transferOwnership | Transfers ownership to the address provided during the call. Only the owner of the contract can call this function. |
+| withdraw | Withdraws any matic token on the account. Only the owner of the contract can call this function. |
+| withdrawERC20Token | Withdraws provided ERC20 token address if there is any on the contract. Only the owner of the contract can call this function. | 
+
+| Read Functions | Functions that anyone can read on the contract |
+| ----------- | ----------- |
+| ADDRESSES_PROVIDER | The Aave Address that provides the POOL address |
+| POOL | The pool contract address that the flashLoan is called on |
+| getOwner | The current Owner of the Flash Loan Contract |
 
 # Useful Resources
 

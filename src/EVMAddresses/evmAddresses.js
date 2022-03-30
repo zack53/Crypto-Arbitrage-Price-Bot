@@ -52,8 +52,8 @@ module.exports = {
     UniAPEToWETHPoolAddress : "0x7f9121B4f4E040fd066e9Dc5C250Cf9B4338D5BC",
     UniUNItoWETHPoolAddress : "",
     ChainLinkMaticToUSDTAddress: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0",
-    AaveFlashLoanV3FactoryAddress: "0x25C80aB76f81d5689c7B29Abe11f76DD3279A1bD",
-    AaveFlashLoanAddress: "0x3ACee0e0e5Bd7ce1D24edCf2240c1557e741Cf0f"
+    AaveFlashLoanV3FactoryAddress: "0xeb1A2c696602eC6349242FD78c3398aEF0A8aD07",
+    AaveFlashLoanAddress: "0xf794EfD64DE04EfeEA9bd708c5122e16e6246Ef4"
 }
 
 // Polygon mumbai addresses

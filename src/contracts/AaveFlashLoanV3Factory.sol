@@ -99,7 +99,7 @@ contract AaveFlashLoanV3Factory {
         Withdraw function to be used in case any funds are left on
         the contract. Only the factory owner can withdraw funds.
     */
-    function withdraw() external payable onlyOwner(){
+    function withdraw() external onlyOwner(){
         (bool success, ) =  owner.call{ value: address(this).balance }("");
         require(success, "Withdraw failed.");
     }
