@@ -41,7 +41,7 @@ I want to be able to use this Crypto Arbitrage Price Bot to identify arbitrage o
 
 | Read Functions | Functions that anyone can read on the contract |
 | ----------- | ----------- |
-| ADDRESSES_PROVIDER | The Aave Address that provides the POOL address |
+| ADDRESSES_PROVIDER | The Aave contract address that provides the POOL address |
 | POOL | The pool contract address that the flashLoan is called on |
 | getOwner | The current Owner of the Flash Loan Contract |
 
