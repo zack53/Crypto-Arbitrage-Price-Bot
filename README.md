@@ -66,7 +66,7 @@ A pool in UniSwap V3 is a pair. The WETH to WBTC pool can be found at the addres
 
 The sqrtPrice96 calculation can be found https://docs.uniswap.org/sdk/guides/fetching-prices .
 
-The TWAP price calculation, which is not implemented yet, can be found https://docs.uniswap.org/protocol/concepts/V3-overview/oracle .
+The TWAP price calculation, which is not implemented yet in the UniswapPriceCalculator.js file, can be found https://docs.uniswap.org/protocol/concepts/V3-overview/oracle .
 
 When deriving a price, the decimals used by the ERC20 token should always be accounted for. An example of how I took these token decimals into account can be seen in the code UniswapPriceCalculator.js file under the src directory within the uniswapGetSqrtPrice function. The decimals can be found at the ERC20 token address or of course dynamically with code.
 
