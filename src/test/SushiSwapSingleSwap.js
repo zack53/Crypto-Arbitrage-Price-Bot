@@ -4,6 +4,7 @@
 //Creates a truffe contract from compiled artifacts.
 const SushiSwapSingleSwap = artifacts.require("SushiSwapSingleSwap")
 const { WETH, WBTC, ERC20ABI, SushiSwapV2RouterAddress} = require('../EVMAddresses/evmAddresses')
+const { wrapToken } = require('../util/ArbitrageUtil')
 
 const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
 const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
@@ -19,16 +20,16 @@ describe( "SushiSwapSingleSwap contract", function () {
     assert.notEqual(balance, 0)
     //deploy contract
     sushiSwapSingleSwap = await SushiSwapSingleSwap.new(SushiSwapV2RouterAddress);
-  });
+  })
 
   it("Should deploy with the correct address", async function () {
     assert.equal(await sushiSwapSingleSwap.sushiRouter(), SushiSwapV2RouterAddress)
-  });
+  })
 
   it('Should swap token values WETH for WBTC', async function () {
     let wethAmountToTransfer = 15
     //Send ETH to WETH contract in return for WETH
-    await wrapEth(wethAmountToTransfer, accounts[0])
+    await wrapToken(wethAmountToTransfer, accounts[0], WETHContract)
     //Approves the contract to trasnferFrom this address.
     await WETHContract.methods.approve(sushiSwapSingleSwap.address, web3.utils.toWei(wethAmountToTransfer.toString(),'ether')).send({from: accounts[0]})
 
@@ -40,19 +41,6 @@ describe( "SushiSwapSingleSwap contract", function () {
     await sushiSwapSingleSwap.swapExactInputSingle(web3.utils.toWei(wethAmountToTransfer.toString(),'ether'),0,[WETH,WBTC],accounts[0],5000000000, {from: accounts[0]})
     let WBTCBal = await WBTCContract.methods.balanceOf(accounts[0]).call()
     assert.notEqual(WBTCBal/10**8, 0)
+  })
+
 })
-
-});
-
-//Need to put these functions in a class to export from 
-//to avoid having duplicate code in both ArbitrageBot.js
-//and current file. This could also break testing if
-//these two instances got out of sync. Need to work on
-//this immediately.
-let wrapEth = async (amount, account) => {
-  await WETHContract.methods.deposit().send({from: account, value: web3.utils.toWei(amount.toString(), 'ether')})
-}
-
-let sendWrapEth = async(amount, to, fromAccount) => {
-  await WETHContract.methods.transfer(to,web3.utils.toWei(amount.toString(), 'ether')).send({from: fromAccount})
-}
