@@ -64,7 +64,6 @@ let main = async () => {
         console.log('------------------------------SushiSwap V2-------------------------------------')
         console.log(`WETH/WBTC: ${sushiPrice.toFixed(8)} | USDT/WETH: ${sushiPrice2.toFixed(8)} | APE/WETH ${sushiPrice3.toFixed(8)}`)
         console.log('-------------------------------------------------------------------------------')
-        console.log(sushiPrice)
         process.exit()
         let pair1 = getPercentDifference(uniPrice,sushiPrice)
         let pair2 = getPercentDifference(uniPrice2,sushiPrice2)

@@ -17,6 +17,9 @@ class SushiSwapPriceCalculator{
         this.SushiPairAddressABI = SushiPairAddressABI
         this.SushiV2Router = new this.web3.eth.Contract(this.SushiV2RouterABI, this.SushiV2RouterAddress)
         this.pairContract = new this.web3.eth.Contract(this.SushiPairAddressABI, this.pairAddress)
+        
+        this.token0Decimals = ''
+        this.token1Decimals = ''
     }
     async getPairSymbol(token0, token1){
         let token0Sym = await token0.methods.symbol().call()
@@ -65,8 +68,12 @@ class SushiSwapPriceCalculator{
 
     async getPairPrice(amount){
         let {_reserve0, _reserve1} = await this.getTokenReserves()
-        let {token0Decimals, token1Decimals} = await this.getTokenDecimals()
-        return this.calculatePrice(amount,_reserve0,_reserve1,token0Decimals,token1Decimals)
+        if(this.token0Decimals == ''){
+            let {token0Decimals, token1Decimals} = await this.getTokenDecimals()
+            this.token0Decimals = token0Decimals
+            this.token1Decimals = token1Decimals
+        }
+        return this.calculatePrice(amount,_reserve0,_reserve1,this.token0Decimals,this.token1Decimals)
     }
 
     async calculatePrice(amount, reserve0, reserve1, decimal0, decimal1){
