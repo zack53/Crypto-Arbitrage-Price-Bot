@@ -4,6 +4,7 @@
 //Creates a truffe contract from compiled artifacts.
 const UniSwapSingleSwap = artifacts.require("UniSwapSingleSwap")
 const { WETH, WBTC, ERC20ABI, UniSwapV3RouterAddress} = require('../EVMAddresses/evmAddresses')
+const { wrapToken } = require('../util/ArbitrageUtil')
 
 const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
 const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
@@ -28,7 +29,7 @@ describe("UniSwapSingleSwap contract", function () {
   it('Should swap token values WETH for WBTC', async function () {
     let wethAmountToTransfer = 15
     //Send ETH to WETH contract in return for WETH
-    await wrapEth(wethAmountToTransfer, accounts[0])
+    await wrapToken(wethAmountToTransfer, accounts[0], WETHContract)
     //Sends WETH to the deployed contract and
     //checks the results.
 
@@ -47,17 +48,4 @@ describe("UniSwapSingleSwap contract", function () {
     let WBTCBal = await WBTCContract.methods.balanceOf(accounts[0]).call()
     assert.notEqual(WBTCBal/10**8, 0)
   })
-});
-
-//Need to put these functions in a class to export from 
-//to avoid having duplicate code in both ArbitrageBot.js
-//and current file. This could also break testing if
-//these two instances got out of sync. Need to work on
-//this immediately.
-let wrapEth = async (amount, account) => {
-  await WETHContract.methods.deposit().send({from: account, value: web3.utils.toWei(amount.toString(), 'ether')})
-}
-
-let sendWrapEth = async(amount, to, fromAccount) => {
-  await WETHContract.methods.transfer(to,web3.utils.toWei(amount.toString(), 'ether')).send({from: fromAccount})
-}
+})

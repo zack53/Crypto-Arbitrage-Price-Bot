@@ -3,6 +3,7 @@
 
 const { web3, assert } = require("hardhat")
 const { WETH, WBTC, ERC20ABI, AaveILendingPoolAddressesProviderv3, UniSwapV3RouterAddress, SushiSwapV2RouterAddress} = require('../EVMAddresses/evmAddresses')
+const {wrapToken, sendToken} = require('../util/ArbitrageUtil')
 
 //Creates a truffe contract from compiled artifacts.
 const AaveFlashLoan = artifacts.require("AaveFlashLoanV3")
@@ -31,9 +32,9 @@ describe( "AaveFlashLoanV3 contract", function () {
   it('Should borrow WETH using UniSwap V3 first.', async function () {
     let wethAmountToTransfer = 15
     //Send ETH to WETH contract in return for WETH
-    await wrapEth(wethAmountToTransfer, accounts[0])
+    await wrapToken(wethAmountToTransfer, accounts[0], WETHContract)
     //Sends WETH to the contract to be able to pay premium fee during test.
-    await sendWrapEth(wethAmountToTransfer, aaveFlashLoan.address, accounts[0])
+    await sendToken(wethAmountToTransfer, aaveFlashLoan.address, accounts[0], WETHContract)
     let wethContractBal = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
     assert.equal(web3.utils.fromWei(wethContractBal,'ether'),wethAmountToTransfer)
     //The link at the top of this file describes how to override 
@@ -102,16 +103,3 @@ describe( "AaveFlashLoanV3 contract", function () {
   })
 
 })
-
-//Need to put these functions in a class to export from 
-//to avoid having duplicate code in both ArbitrageBot.js
-//and current file. This could also break testing if
-//these two instances got out of sync. Need to work on
-//this immediately.
-let wrapEth = async (amount, account) => {
-  await WETHContract.methods.deposit().send({from: account, value: web3.utils.toWei(amount.toString(), 'ether')})
-}
-
-let sendWrapEth = async(amount, to, fromAccount) => {
-  await WETHContract.methods.transfer(to,web3.utils.toWei(amount.toString(), 'ether')).send({from: fromAccount})
-}
