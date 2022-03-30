@@ -21,11 +21,13 @@ I want to be able to use this Crypto Arbitrage Price Bot to identify arbitrage o
 | ----------- | ----------- |
 | getFlashLoanContract | This allows for someone to pass in an address to get the flash loan deployment address linked the input. This is used in case the caller lost the contract address from the createNewFlashLoanContract function. The caller can input the address the caller used to create the contract and get the deployed Flash Loan location. |
 | getMaticValueNeededForNewContract | The caller can call this to figure out the amount of matic value the caller need to send with the createNewFlashLoanContract function for the process to succeed. |
-| getAmountOfFlashLoansCreated | The amount of people who have created a flash loan through the createNewFlashLoanContract |
+| getAmountOfFlashLoansCreated | The amount of created flash loan contracts via the createNewFlashLoanContract function |
 | addressProvider | Address for the Aave Flash Loan Provider |
 | getOwner | Address for the owner of the AaveFlashLoanV3Factory |
 | sushiRouter | Address for the Sushi Router used |
 | uniSwapRouter | Address for the UniSwap Router used |
+
+# Useful Resources
 
 ## Aave Flash Loan
 The Solidity contract that will be responsible for this flash loan will require inputs of token0, token1, amountIn, amountOut, poolFee, deadline, and direction between UniSwap and SushiSwap. Currently using AAVE v3 https://docs.aave.com/developers/guides/flash-loans on Polygon. The Flash Loan works dynamically with UniSwap and SushiSwap. The Arbitrage price bot will be able to send any token pair to the Flash Loan smart contract, granted they are supported on both UniSwap V3 and SushiSwap.
