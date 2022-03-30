@@ -4,7 +4,7 @@ const Web3 = require('web3')
 const UniswapV3PriceCalculator = require('./UniswapPriceCalculator')
 const SushiSwapPriceCalculator = require('./SushiSwapPriceCalculator')
 const AaveFlashLoan = require('./artifacts/contracts/AaveFlashLoanV3.sol/AaveFlashLoanV3.json')
-const { WETH, WBTC, APE, ERC20ABI } = require('./EVMAddresses/evmAddresses')
+const { WETH, WBTC, APE, ERC20ABI, SushiWETHtoWBTCPairAddress, SushiWETHtoUSDTPairAddress, SushiAPEtoWETHPairAddress } = require('./EVMAddresses/evmAddresses')
 const { default: BigNumber } = require('bignumber.js')
 
 const AaveFlashLoanAddress = '0x89738EFa2e2944062d52669DdfF4598D22Ce02dB'
@@ -42,7 +42,9 @@ let getTokenDecimal = async (tokenContract) => {
 }
 const web3 = new Web3(new HDWalletProvider(process.env.PRIVATE_KEY,process.env.RPC_URL))
 let uniswapPriceCalc = new UniswapV3PriceCalculator(web3)
-let sushiSwapPriceCalc = new SushiSwapPriceCalculator(web3)
+let sushiSwapPriceCalc = new SushiSwapPriceCalculator(web3, SushiWETHtoWBTCPairAddress)
+let sushiSwapPriceCalc2 = new SushiSwapPriceCalculator(web3, SushiWETHtoUSDTPairAddress)
+let sushiSwapPriceCalc3 = new SushiSwapPriceCalculator(web3, SushiAPEtoWETHPairAddress)
 
 const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
 const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
@@ -56,8 +58,14 @@ let main = async () => {
         isPolling = true
 
         let {uniPrice, uniPrice2, uniPrice3} = await uniswapPriceCalc.main()
-        let {sushiPrice, sushiPrice2, sushiPrice3} = await sushiSwapPriceCalc.main()
-
+        let sushiPrice = await sushiSwapPriceCalc.getPairPrice(1)
+        let sushiPrice2 = await sushiSwapPriceCalc2.getPairPrice(1)
+        let sushiPrice3 = await sushiSwapPriceCalc3.getPairPrice(1)
+        console.log('------------------------------SushiSwap V2-------------------------------------')
+        console.log(`WETH/WBTC: ${sushiPrice.toFixed(8)} | USDT/WETH: ${sushiPrice2.toFixed(8)} | APE/WETH ${sushiPrice3.toFixed(8)}`)
+        console.log('-------------------------------------------------------------------------------')
+        console.log(sushiPrice)
+        process.exit()
         let pair1 = getPercentDifference(uniPrice,sushiPrice)
         let pair2 = getPercentDifference(uniPrice2,sushiPrice2)
         let pair3 = getPercentDifference(uniPrice3,sushiPrice3)
