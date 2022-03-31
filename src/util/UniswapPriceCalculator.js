@@ -9,9 +9,8 @@ class UniswapV3PriceCalculator{
         this.web3 = web3
         this.poolAddress = poolAddress
         this.Q192 = BigNumber(2).exponentiatedBy(192)
-        // These values will be cached during first getPairPrice call.
-        this.token0Decimals = ''
-        this.token1Decimals = ''
+        // Initialize the price calc data to be checked during
+        // first iteration of getPairPrice
         this.priceCalculationDirection = ''
         
         this.UniswapV3Factory = new this.web3.eth.Contract(UniswapV3FactoryABI, UniswapV3FactoryContractAddress)
@@ -31,21 +30,12 @@ class UniswapV3PriceCalculator{
         return await this.UniswapV3Factory.methods.getPool(tokenA,tokenB,poolFee).call()
     }
 
-    //Not fully implemented TWAP price calculator
-    async getPoolObservation() {
-        try {
-            results = await this.UniswapV3PoolWETHtoWBTC.methods.observe([0, 10]).call()
-            console.log(results)
-            tickCumList = results.tickCumulatives
-            console.log(tickCumList)
-            let i = (Math.abs(tickCumList[1] - tickCumList[0]))/10
-            console.log(i)
-            console.log(Math.sqrt(1.0001**(2*i)))
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
+    /**
+     * Gets the Price for token0/token1
+     * @param {*} token0Dec 
+     * @param {*} token1Dec 
+     * @returns 
+     */
     async uniswapGetSqrtPrice(token0Dec, token1Dec){
         //Get slot0 function on the pool contract
         //where the sqrtPriceX96 is stored.
@@ -61,6 +51,12 @@ class UniswapV3PriceCalculator{
         return price
     }
 
+    /**
+     * Gets the Price for token1/token0
+     * @param {*} token0Dec 
+     * @param {*} token1Dec 
+     * @returns 
+     */
     async uniswapGetSqrtPriceReversed(token0Dec, token1Dec){
         //Get slot0 function on the pool contract
         //where the sqrtPriceX96 is stored.
@@ -76,12 +72,16 @@ class UniswapV3PriceCalculator{
         return price
     }
 
-    async setTokenSymbol(){
+    /**
+     * Sets the token symbols
+     */
+    async setTokenSymbols(){
         this.token0Symbol = await this.token0Contract.methods.symbol().call()
         this.token1Symbol = await this.token1Contract.methods.symbol().call()
     }
+
     /**
-     * Gets the token decimals. These decimal values are "cached" in
+     * Sets the token decimals. These decimal values are "cached" in
      * the class on the first iteration of the getPairPrice function.
      * @returns 
      */
@@ -90,17 +90,29 @@ class UniswapV3PriceCalculator{
         this.token1Decimals = await this.token1Contract.methods.decimals().call()
     }
 
-    async initTokenContracts(){
+    /**
+     * Function to initialize the token contracts
+     */
+    async setTokenContracts(){
         this.token0 = await this.poolContract.methods.token0().call()
         this.token1 = await this.poolContract.methods.token1().call()
         this.token0Contract = new this.web3.eth.Contract(ERC20ABI, this.token0)
         this.token1Contract = new this.web3.eth.Contract(ERC20ABI, this.token1)
     }
 
-    async initTokenInfo(){
-        await this.initTokenContracts()
+    /**
+     * Function to initialize all of the token data
+     */
+    async setPoolTokenInfo(){
+        await this.setTokenContracts()
         await this.setTokenDecimals()
-        await this.setTokenSymbol()
+        await this.setTokenSymbols()
+    }
+
+    async setPriceCalculationDirection(){
+        let price1 = await this.uniswapGetSqrtPrice(this.token0Decimals,this.token1Decimals)
+        let price2 = await this.uniswapGetSqrtPriceReversed(this.token1Decimals,this.token0Decimals)
+        this.priceCalculationDirection = (price1 > price2) ? true : false
     }
 
     /**
@@ -112,12 +124,16 @@ class UniswapV3PriceCalculator{
         return (!this.priceCalculationDirection) ? `${this.token0Symbol}/${this.token1Symbol}` : `${this.token1Symbol}/${this.token0Symbol}`
     }
 
+    /**
+     * Gets the pair price for the pair initialized when the class is
+     * created.
+     * @returns 
+     */
     async getPairPrice(){
-        if(this.token0Decimals == ''){
-            await this.initTokenInfo()
-            let price1 = await this.uniswapGetSqrtPrice(this.token0Decimals,this.token1Decimals)
-            let price2 = await this.uniswapGetSqrtPriceReversed(this.token1Decimals,this.token0Decimals)
-            this.priceCalculationDirection = (price1 > price2) ? true : false
+        // We initialize all of the data if the price calc direction has not been set
+        if(this.priceCalculationDirection  == ''){
+            await this.setPoolTokenInfo()
+            await this.setPriceCalculationDirection()
         }
         return (this.priceCalculationDirection) ? await this.uniswapGetSqrtPrice(this.token0Decimals,this.token1Decimals) : await this.uniswapGetSqrtPriceReversed(this.token1Decimals,this.token0Decimals)
     }
