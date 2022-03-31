@@ -104,6 +104,7 @@ class UniswapV3PriceCalculator{
      * Function to initialize all of the token data
      */
     async setPoolTokenInfo(){
+        this.poolFee = await this.poolContract.methods.fee().call()
         await this.setTokenContracts()
         await this.setTokenDecimals()
         await this.setTokenSymbols()
