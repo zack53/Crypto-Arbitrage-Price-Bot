@@ -37,7 +37,7 @@ const APEContract = new web3.eth.Contract(ERC20ABI, APE)
 //const AaveFlashLoanAddress = '0xD494FA95f4C032ed3445a758D30324EE18A3335f'
 const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlashLoanAddress)
 
-let displayTokenInfo = async () =>{
+let displayTokenInfo = () =>{
     console.table({           
         'UniSwap V3':{
             [uniswapPriceCalc.symbolsToString()]: uniPrice.toFixed(8),
@@ -58,7 +58,7 @@ let displayTokenInfo = async () =>{
 }
 
 let  executeFlashLoan = async (token0, token1, direction, poolFee, amountToTrade, amountOut, deadline) => {
-    console.log(poolFee)
+    displayTokenInfo()
     try{
         await AaveFlashLoanContract.methods.myFlashLoanCall(token0,token1,direction,poolFee,amountToTrade.toString(),amountOut.toString(),deadline).send({
             from: process.env.ACCOUNT,
@@ -101,7 +101,7 @@ let main = async () => {
         pair3Dif = getPercentDifference(uniPrice3,sushiPrice3)
 
 
-        displayTokenInfo()
+        // displayTokenInfo()
         if(pair1Dif >= 2){
             console.log('pair1')
             let direction = getTokenDirection(uniPrice,sushiPrice)
