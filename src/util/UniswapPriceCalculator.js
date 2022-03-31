@@ -76,25 +76,45 @@ class UniswapV3PriceCalculator{
         return price
     }
 
+    async setTokenSymbol(){
+        this.token0Symbol = await this.token0Contract.methods.symbol().call()
+        this.token1Symbol = await this.token1Contract.methods.symbol().call()
+    }
     /**
      * Gets the token decimals. These decimal values are "cached" in
      * the class on the first iteration of the getPairPrice function.
      * @returns 
      */
-    async getTokenDecimals(){
-        let token0 = await this.poolContract.methods.token0().call()
-        let token1 = await this.poolContract.methods.token1().call()
-        let token0Contract = new this.web3.eth.Contract(ERC20ABI, token0)
-        let token1Contract = new this.web3.eth.Contract(ERC20ABI, token1)
-        let token0Decimals = await token0Contract.methods.decimals().call()
-        let token1Decimals = await token1Contract.methods.decimals().call()
-        return {'token0Decimals' : parseInt(token0Decimals), 'token1Decimals': parseInt(token1Decimals)}
+    async setTokenDecimals(){
+        this.token0Decimals = await this.token0Contract.methods.decimals().call()
+        this.token1Decimals = await this.token1Contract.methods.decimals().call()
     }
+
+    async initTokenContracts(){
+        this.token0 = await this.poolContract.methods.token0().call()
+        this.token1 = await this.poolContract.methods.token1().call()
+        this.token0Contract = new this.web3.eth.Contract(ERC20ABI, this.token0)
+        this.token1Contract = new this.web3.eth.Contract(ERC20ABI, this.token1)
+    }
+
+    async initTokenInfo(){
+        await this.initTokenContracts()
+        await this.setTokenDecimals()
+        await this.setTokenSymbol()
+    }
+
+    /**
+     * Returns the symbols to string where the token of least value is to the left
+     * and token of greatest value is to the right i.e. WMATIC/WBTC
+     * @returns 
+     */
+    symbolsToString(){
+        return (!this.priceCalculationDirection) ? `${this.token0Symbol}/${this.token1Symbol}` : `${this.token1Symbol}/${this.token0Symbol}`
+    }
+
     async getPairPrice(){
         if(this.token0Decimals == ''){
-            let {token0Decimals, token1Decimals} = await this.getTokenDecimals()
-            this.token0Decimals = token0Decimals
-            this.token1Decimals = token1Decimals
+            await this.initTokenInfo()
             let price1 = await this.uniswapGetSqrtPrice(this.token0Decimals,this.token1Decimals)
             let price2 = await this.uniswapGetSqrtPriceReversed(this.token1Decimals,this.token0Decimals)
             this.priceCalculationDirection = (price1 > price2) ? true : false

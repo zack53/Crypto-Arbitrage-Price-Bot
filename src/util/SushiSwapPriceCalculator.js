@@ -19,8 +19,6 @@ class SushiSwapPriceCalculator{
         // These values will be cached during first getPairPrice call.
         this.token0Decimals = ''
         this.token1Decimals = ''
-        this.token0Symbol = ''
-        this.token1Symbol = ''
         this.priceCalculationDirection = ''
         //Create contracts needed to interact with smart contracts
         this.SushiV2Router = new this.web3.eth.Contract(SushiV2RouterABI, SushiSwapV2RouterAddress)
@@ -43,6 +41,7 @@ class SushiSwapPriceCalculator{
     async getTokenDecimals(){
         let token0Decimals = await this.token0Contract.methods.decimals().call()
         let token1Decimals = await this.token1Contract.methods.decimals().call()
+        await this.setTokenSymbol()
         return {'token0Decimals' : parseInt(token0Decimals), 'token1Decimals': parseInt(token1Decimals)}
     }
 
@@ -60,7 +59,7 @@ class SushiSwapPriceCalculator{
      * @returns 
      */
     symbolsToString(){
-        return (this.priceCalculationDirection) ? `${this.token0Symbol}/${this.token1Symbol}` : `${this.token1Symbol}/${this.token0Symbol}`
+        return (!this.priceCalculationDirection) ? `${this.token0Symbol}/${this.token1Symbol}` : `${this.token1Symbol}/${this.token0Symbol}`
     }
 
     /**
@@ -80,6 +79,18 @@ class SushiSwapPriceCalculator{
         return this.calculatePrice(1,_reserve0,_reserve1,this.token0Decimals,this.token1Decimals)
     }
 
+    /**
+     * Sets the direction so that the symbols can
+     * be provided in the correcot order
+     * @param {} price 
+     */
+    setPriceCalculationDirection(price){
+        if(price >= 1){
+            this.priceCalculationDirection = true
+        }else {
+            this.priceCalculationDirection = false
+        }
+    }
     /**
      * Function to get the price and adjust to human readable value.
      * @param {*} amount 
@@ -104,15 +115,12 @@ class SushiSwapPriceCalculator{
         let price = BigNumber(await this.SushiV2Router.methods.quote(BigNumber(amount).shiftedBy(decimal0), reserve0, reserve1).call())
         //Shift left by decimal1 to get the final output.
         price = price.shiftedBy(-decimal1)
+        
+        if(this.priceCalculationDirection == ''){
+            this.setPriceCalculationDirection(price)
+        }
         if(price.toNumber() < 1){
             price = BigNumber(1).dividedBy(price)
-            this.priceCalculationDirection = false
-        }
-        if(this.priceCalculationDirection == ''){
-            this.priceCalculationDirection = true
-        }
-        if(this.token0Symbol == ''){
-            await this.setTokenSymbol()
         }
         return price
     }
