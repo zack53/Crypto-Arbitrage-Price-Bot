@@ -5,6 +5,7 @@ import { FlashLoanReceiverBase, IFlashLoanReceiver, IPoolAddressesProvider, IPoo
 import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
 import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
+import '@openzeppelin/contracts/utils/Strings.sol';
 
 /**
     Contract to call a Flash Loan and make token swaps from
@@ -21,6 +22,8 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
         functions.
     */
     address owner;
+
+    uint16 public minimumProfitDividor = 400;
     
     /**
         Variables used in construction variable to set
@@ -60,16 +63,22 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
 
         // This contract now has the funds requested.
         // Call function to swap tokens.
-        swapERC20Tokens(params);
+        swapERC20Tokens(params,premiums);
 
         // At the end of your logic above, this contract owes
         // the flashloaned amounts + premiums.
         // Therefore ensure your contract has enough to repay
         // these amounts.
-        
+        bytes memory a = 'Not enough tokens to repay debt. Debt Amount: ';
+        bytes memory b = ' - Amount in Contract: ';
         // Approve the LendingPool contract allowance to *pull* the owed amount
         for (uint i = 0; i < assets.length; i++) {
             uint amountOwing = amounts[i] + premiums[i];
+            uint256 contractTokenBal = IERC20(assets[i]).balanceOf(address(this));
+            // Put in require statement for better reverted reason string. I 
+            // have provided the amount of payment needed by the Aave loan
+            // vs. the amoount of the token currently in the contract.
+            require(amountOwing < contractTokenBal,string(abi.encodePacked(abi.encodePacked(a,Strings.toString(amountOwing)),abi.encodePacked(b,Strings.toString(contractTokenBal)))));
             TransferHelper.safeApprove(assets[i], address(POOL), amountOwing);
         }
         
@@ -114,11 +123,12 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
     /**
         Swapping mechanism that handles directional logic.
     */
-    function swapERC20Tokens(bytes calldata params) internal{
+    function swapERC20Tokens(bytes calldata params, uint256[] calldata premiums) internal{
         (address token0, address token1, uint8 direction, uint24 poolFee, uint256 amountIn, uint256 amountOut, uint256 deadline) = abi.decode(params, (address, address, uint8, uint24, uint256, uint256, uint256));
 
         address[] memory path = new address[](2);
-
+        //amountOutMin calculates a minimum profit adjustable by minimumProfitDividor
+        uint256 amountOutMin = amountIn+premiums[0]+(amountIn/minimumProfitDividor);
         // The direction is used to determine which DeFi exchange
         // will be used first.
         if(direction == 1){
@@ -127,9 +137,11 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
             uint256 uniSwapAmountOut = uniSwapExactInputSingle(amountIn, amountOut, token0, token1, poolFee);  
 
             // Reverse direction to trade back to original token 
+            // Also will not make the trade unless we can get
+            // a minimum of .25 % in profit
             path[0] = token1;
             path[1] = token0;
-            sushiSwapExactInputSingle(uniSwapAmountOut, 0, path, deadline);
+            sushiSwapExactInputSingle(uniSwapAmountOut, amountOutMin, path, deadline);
 
         }else{
 
@@ -139,7 +151,9 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
             uint256[] memory sushiSwapAmountOut = sushiSwapExactInputSingle(amountIn, amountOut, path, deadline);  
 
             // Reverse direction to trade back to original token 
-            uniSwapExactInputSingle(sushiSwapAmountOut[1], 0, token1, token0, poolFee);
+            // Also will not make the trade unless we can get
+            // a minimum of .25 % in profit
+            uniSwapExactInputSingle(sushiSwapAmountOut[1], amountOutMin, token1, token0, poolFee);
         }
     }
 
@@ -212,4 +226,10 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
          owner = newOwner;
      }
 
+     /**
+        Allows owner to change the minimumProfitDividor
+     */
+    function setMinimumProfitDividor(uint16 setAmount) external onlyOwner {
+        minimumProfitDividor = setAmount;
+    }
 }
