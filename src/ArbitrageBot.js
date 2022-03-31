@@ -4,20 +4,20 @@ const Web3 = require('web3')
 const UniswapV3PriceCalculator = require('./util/UniswapPriceCalculator')
 const SushiSwapPriceCalculator = require('./util/SushiSwapPriceCalculator')
 const AaveFlashLoan = require('./artifacts/contracts/AaveFlashLoanV3.sol/AaveFlashLoanV3.json')
-const { WETH, WBTC, APE, ERC20ABI, UniWETHtoWBTCPoolAddress, UniWETHtoUSDTPoolAddress, UniAPEToWETHPoolAddress, SushiWETHtoWBTCPairAddress, SushiWETHtoUSDTPairAddress, SushiAPEtoWETHPairAddress, AaveFlashLoanAddress } = require('./EVMAddresses/evmAddresses')
+const { WETH, WBTC, APE, ERC20ABI, UniPool1Address, UniPool2Address, UniPool3Address, SushiPair1Address, SushiPair2Address, SushiPair3Address, AaveFlashLoanAddress } = require('./EVMAddresses/evmAddresses')
 const { default: BigNumber } = require('bignumber.js')
 const {getPercentDifference, getTokenDirection, wrapToken, sendToken, getWalletEthBalance} = require('./util/ArbitrageUtil')
 
 
 const web3 = new Web3(new HDWalletProvider(process.env.PRIVATE_KEY,process.env.RPC_URL))
 
-let uniswapPriceCalc = new UniswapV3PriceCalculator(web3, UniWETHtoWBTCPoolAddress)
-let uniswapPriceCalc2 = new UniswapV3PriceCalculator(web3, UniWETHtoUSDTPoolAddress)
-let uniswapPriceCalc3 = new UniswapV3PriceCalculator(web3, UniAPEToWETHPoolAddress)
+let uniswapPriceCalc = new UniswapV3PriceCalculator(web3, UniPool1Address)
+let uniswapPriceCalc2 = new UniswapV3PriceCalculator(web3, UniPool2Address)
+let uniswapPriceCalc3 = new UniswapV3PriceCalculator(web3, UniPool3Address)
 
-let sushiSwapPriceCalc = new SushiSwapPriceCalculator(web3, SushiWETHtoWBTCPairAddress)
-let sushiSwapPriceCalc2 = new SushiSwapPriceCalculator(web3, SushiWETHtoUSDTPairAddress)
-let sushiSwapPriceCalc3 = new SushiSwapPriceCalculator(web3, SushiAPEtoWETHPairAddress)
+let sushiSwapPriceCalc = new SushiSwapPriceCalculator(web3, SushiPair1Address)
+let sushiSwapPriceCalc2 = new SushiSwapPriceCalculator(web3, SushiPair2Address)
+let sushiSwapPriceCalc3 = new SushiSwapPriceCalculator(web3, SushiPair3Address)
 
 const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
 const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
