@@ -56,6 +56,32 @@ let displayTokenInfo = async () =>{
     })
 }
 
+let  executeFlashLoan = async (token0, token1, direction, poolFee, amountToTrade, amountOut, deadline) => {
+    console.log(poolFee)
+    try{
+        await AaveFlashLoanContract.methods.myFlashLoanCall(token0,token1,direction,poolFee,amountToTrade.toString(),amountOut.toString(),deadline).send({
+            from: process.env.ACCOUNT,
+            gas:await AaveFlashLoanContract.methods.myFlashLoanCall(token0,token1,direction,poolFee,amountToTrade.toString(),amountOut.toString(),deadline).estimateGas(),
+            gasPrice: await getPolygonGasPrice('fast')
+        })
+    }catch(error){
+        console.log('Flash Loan execution error')
+        console.log(error)
+        process.exit()
+    }
+}
+
+let tokenWithdraw = async(token0) => {
+    
+    
+    try{
+        await AaveFlashLoanContract.methods.withdrawERC20Token(token0).send({from: process.env.ACCOUNT})
+    }catch(error){
+        console.log('Token withdraw error')
+        console.log(error)
+        process.exit()
+    }
+}
 let main = async () => {
     if (isPolling == false){
 
@@ -74,49 +100,31 @@ let main = async () => {
         pair3Dif = getPercentDifference(uniPrice3,sushiPrice3)
 
         displayTokenInfo()
-        process.exit()
-        if(pair1 >= .5){
-            console.log(pair1)
+        if(pair1Dif >= 1){
+            console.log('pair1')
             let direction = getTokenDirection(uniPrice,sushiPrice)
             console.log(direction)
+            let amountToTrade = BigNumber(1).shiftedBy(18).toString()
+            await executeFlashLoan(uniswapPriceCalc.token0,uniswapPriceCalc.token1,direction,uniswapPriceCalc.poolFee,amountToTrade,0,50000000000)
+            await tokenWithdraw(uniswapPriceCalc.token0)
             process.exit()
         }
-        if(pair2 >= .5){
-            console.log(pair2)
+        if(pair2Dif >= 2.5){
+            console.log('pair2')
             let direction = getTokenDirection(uniPrice,sushiPrice)
             console.log(direction)
+            let amountToTrade = BigNumber(1).shiftedBy(18).toString()
+            await executeFlashLoan(uniswapPriceCalc2.token0,uniswapPriceCalc2.token1,direction,uniswapPriceCalc2.poolFee,amountToTrade,0,50000000000)
+            await tokenWithdraw(uniswapPriceCalc2.token0)
             process.exit()
         }
-        if(pair3 >= 1){
-            let wethAmountToTransfer = 20
-            try{
-                await wrapToken(wethAmountToTransfer,process.env.ACCOUNT)
-            }catch(error){
-                console.log(error)
-                process.exit()
-            }
-            await sendToken(wethAmountToTransfer, AaveFlashLoanAddress, process.env.ACCOUNT, WETHContract)
-            let wethBalBefore = await WETHContract.methods.balanceOf(AaveFlashLoanAddress).call()
-            console.log(wethBalBefore)
+        if(pair3Dif >= 2.5){
+            console.log('pair3')
             let direction = getTokenDirection(uniPrice3,sushiPrice3)
             console.log(direction)
             let amountToTrade = BigNumber(1).shiftedBy(18).toString()
-            try{
-                await AaveFlashLoanContract.methods.myFlashLoanCall(WETH,WBTC,direction,500,amountToTrade,0,50000000000).send({from: process.env.ACCOUNT})
-            }catch(error){
-                console.log(error)
-                process.exit()
-            }
-            try{
-                await AaveFlashLoanContract.methods.withdrawERC20Token(WETH).send({from: process.env.ACCOUNT})
-            }catch(error){
-                console.log(error)
-                process.exit()
-            }
-            let wethBal = await WETHContract.methods.balanceOf(process.env.ACCOUNT).call()
-            console.log(wethBal)
-            let amountMade = wethBal-wethBalBefore
-            console.log(amountMade)
+            await executeFlashLoan(uniswapPriceCalc3.token0,uniswapPriceCalc3.token1,direction,uniswapPriceCalc3.poolFee,amountToTrade,0,50000000000)
+            await tokenWithdraw(uniswapPriceCalc3.token0)
             process.exit()
         }
 
