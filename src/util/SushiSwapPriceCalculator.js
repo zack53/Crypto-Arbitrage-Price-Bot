@@ -19,9 +19,20 @@ class SushiSwapPriceCalculator{
         // These values will be cached during first getPairPrice call.
         this.token0Decimals = ''
         this.token1Decimals = ''
+        this.token0Symbol = ''
+        this.token1Symbol = ''
+        this.priceCalculationDirection = ''
         //Create contracts needed to interact with smart contracts
         this.SushiV2Router = new this.web3.eth.Contract(SushiV2RouterABI, SushiSwapV2RouterAddress)
         this.pairContract = new this.web3.eth.Contract(SushiPairAddressABI, this.pairAddress)
+        this.token0 = this.pairContract.methods.token0().call().then((result) => {
+            this.token0Contract = new this.web3.eth.Contract(ERC20ABI, result)
+            return result
+        })
+        this.token1 = this.pairContract.methods.token1().call().then((result) => {
+            this.token1Contract = new this.web3.eth.Contract(ERC20ABI, result)
+            return result
+        })
     }
 
     /**
@@ -30,13 +41,26 @@ class SushiSwapPriceCalculator{
      * @returns 
      */
     async getTokenDecimals(){
-        let token0 = await this.pairContract.methods.token0().call()
-        let token1 = await this.pairContract.methods.token1().call()
-        let token0Contract = new this.web3.eth.Contract(ERC20ABI, token0)
-        let token1Contract = new this.web3.eth.Contract(ERC20ABI, token1)
-        let token0Decimals = await token0Contract.methods.decimals().call()
-        let token1Decimals = await token1Contract.methods.decimals().call()
+        let token0Decimals = await this.token0Contract.methods.decimals().call()
+        let token1Decimals = await this.token1Contract.methods.decimals().call()
         return {'token0Decimals' : parseInt(token0Decimals), 'token1Decimals': parseInt(token1Decimals)}
+    }
+
+    /**
+     * Sets the token symbols for this SushiSwap pair
+     */
+    async setTokenSymbol(){
+        this.token0Symbol = await this.token0Contract.methods.symbol().call()
+        this.token1Symbol = await this.token1Contract.methods.symbol().call()
+    }
+
+    /**
+     * Returns the symbols to string where the token of least value is to the left
+     * and token of greatest value is to the right i.e. WMATIC/WBTC
+     * @returns 
+     */
+    symbolsToString(){
+        return (this.priceCalculationDirection) ? `${this.token0Symbol}/${this.token1Symbol}` : `${this.token1Symbol}/${this.token0Symbol}`
     }
 
     /**
@@ -82,6 +106,13 @@ class SushiSwapPriceCalculator{
         price = price.shiftedBy(-decimal1)
         if(price.toNumber() < 1){
             price = BigNumber(1).dividedBy(price)
+            this.priceCalculationDirection = false
+        }
+        if(this.priceCalculationDirection == ''){
+            this.priceCalculationDirection = true
+        }
+        if(this.token0Symbol == ''){
+            await this.setTokenSymbol()
         }
         return price
     }
