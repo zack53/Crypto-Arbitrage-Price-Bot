@@ -8,7 +8,6 @@ const { WETH, WBTC, APE, ERC20ABI, UniPool1Address, UniPool2Address, UniPool3Add
 const { default: BigNumber } = require('bignumber.js')
 const {getPercentDifference, getTokenDirection, wrapToken, sendToken, getWalletEthBalance} = require('./util/ArbitrageUtil')
 
-
 const web3 = new Web3(new HDWalletProvider(process.env.PRIVATE_KEY,process.env.RPC_URL))
 
 let uniswapPriceCalc = new UniswapV3PriceCalculator(web3, UniPool1Address)
@@ -19,36 +18,62 @@ let sushiSwapPriceCalc = new SushiSwapPriceCalculator(web3, SushiPair1Address)
 let sushiSwapPriceCalc2 = new SushiSwapPriceCalculator(web3, SushiPair2Address)
 let sushiSwapPriceCalc3 = new SushiSwapPriceCalculator(web3, SushiPair3Address)
 
+let uniPrice
+let uniPrice2
+let uniPrice3
+
+let sushiPrice
+let sushiPrice2
+let sushiPrice3
+
+let pair1Dif
+let pair2Dif
+let pair3Dif
+
 const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
 const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
 const APEContract = new web3.eth.Contract(ERC20ABI, APE)
 
 const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlashLoanAddress)
 
+let displayTokenInfo = async () =>{
+    console.table({           
+        'UniSwap V3':{
+            [uniswapPriceCalc.symbolsToString()]: uniPrice.toFixed(8),
+            [uniswapPriceCalc2.symbolsToString()]: uniPrice2.toFixed(8),
+            [uniswapPriceCalc3.symbolsToString()]: uniPrice3.toFixed(8)
+        },
+        'SushiSwap V2':{
+            [sushiSwapPriceCalc.symbolsToString()]: sushiPrice.toFixed(8),
+            [sushiSwapPriceCalc2.symbolsToString()]: sushiPrice2.toFixed(8),
+            [sushiSwapPriceCalc3.symbolsToString()]: sushiPrice3.toFixed(8)
+        },
+        'Pair % Dif':{
+            [uniswapPriceCalc.symbolsToString()]:  `${pair1Dif.toFixed(4)} %`,
+            [uniswapPriceCalc2.symbolsToString()]: `${pair2Dif.toFixed(4)} %`,
+            [uniswapPriceCalc3.symbolsToString()]: `${pair3Dif.toFixed(4)} %`
+        }
+    })
+}
+
 let main = async () => {
     if (isPolling == false){
 
         isPolling = true
+        
+        uniPrice = await uniswapPriceCalc.getPairPrice()
+        uniPrice2 = await uniswapPriceCalc2.getPairPrice()
+        uniPrice3 = await uniswapPriceCalc3.getPairPrice()
 
-        let uniPrice = await uniswapPriceCalc.getPairPrice()
-        let uniPrice2 = await uniswapPriceCalc2.getPairPrice()
-        let uniPrice3 = await uniswapPriceCalc3.getPairPrice()
+        sushiPrice = await sushiSwapPriceCalc.getPairPrice()
+        sushiPrice2 = await sushiSwapPriceCalc2.getPairPrice()
+        sushiPrice3 = await sushiSwapPriceCalc3.getPairPrice()
 
-        let sushiPrice = await sushiSwapPriceCalc.getPairPrice()
-        let sushiPrice2 = await sushiSwapPriceCalc2.getPairPrice()
-        let sushiPrice3 = await sushiSwapPriceCalc3.getPairPrice()
-        console.log('-------------------------------Uniswap V3--------------------------------------')
-        console.log(`${uniswapPriceCalc.symbolsToString()}: ${uniPrice.toFixed(8)} | ${uniswapPriceCalc2.symbolsToString()}: ${uniPrice2.toFixed(8)} | ${uniswapPriceCalc3.symbolsToString()}: ${uniPrice3.toFixed(8)}`)
-        console.log('-------------------------------------------------------------------------------')
-        console.log('------------------------------SushiSwap V2-------------------------------------')
-        console.log(`${sushiSwapPriceCalc.symbolsToString()}: ${sushiPrice.toFixed(8)} | ${sushiSwapPriceCalc2.symbolsToString()}: ${sushiPrice2.toFixed(8)} |${sushiSwapPriceCalc3.symbolsToString()} ${sushiPrice3.toFixed(8)}`)
-        console.log('-------------------------------------------------------------------------------')
-        // let pair1 = getPercentDifference(uniPrice,sushiPrice)
-        // let pair2 = getPercentDifference(uniPrice2,sushiPrice2)
-        // let pair3 = getPercentDifference(uniPrice3,sushiPrice3)
-        // console.log(pair1)
-        // console.log(pair2)
-        // console.log(pair3)
+        pair1Dif = getPercentDifference(uniPrice,sushiPrice)
+        pair2Dif = getPercentDifference(uniPrice2,sushiPrice2)
+        pair3Dif = getPercentDifference(uniPrice3,sushiPrice3)
+
+        displayTokenInfo()
         process.exit()
         if(pair1 >= .5){
             console.log(pair1)
