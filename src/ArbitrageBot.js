@@ -72,8 +72,6 @@ let  executeFlashLoan = async (token0, token1, direction, poolFee, amountToTrade
 }
 
 let tokenWithdraw = async(token0) => {
-    
-    
     try{
         await AaveFlashLoanContract.methods.withdrawERC20Token(token0).send({
             from: process.env.ACCOUNT,
@@ -104,7 +102,7 @@ let main = async () => {
 
 
         displayTokenInfo()
-        if(pair1Dif >= 1.5){
+        if(pair1Dif >= 2){
             console.log('pair1')
             let direction = getTokenDirection(uniPrice,sushiPrice)
             console.log(direction)
@@ -114,7 +112,7 @@ let main = async () => {
             await tokenWithdraw(uniswapPriceCalc.token0)
             process.exit()
         }
-        if(pair2Dif >= 1.5){
+        if(pair2Dif >= 2){
             console.log('pair2')
             let direction = getTokenDirection(uniPrice,sushiPrice)
             console.log(direction)
@@ -124,7 +122,7 @@ let main = async () => {
             await tokenWithdraw(uniswapPriceCalc2.token0)
             process.exit()
         }
-        if(pair3Dif >= 1.5){
+        if(pair3Dif >= 2){
             console.log('pair3')
             let direction = getTokenDirection(uniPrice3,sushiPrice3)
             console.log(direction)
