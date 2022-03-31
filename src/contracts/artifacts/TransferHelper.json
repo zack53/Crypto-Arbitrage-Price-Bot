@@ -1,0 +1,66 @@
+{
+	"deploy": {
+		"VM:-": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"main:1": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"ropsten:3": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"rinkeby:4": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"kovan:42": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"görli:5": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"Custom": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		}
+	},
+	"data": {
+		"bytecode": {
+			"functionDebugData": {},
+			"generatedSources": [],
+			"linkReferences": {},
+			"object": "60566037600b82828239805160001a607314602a57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea264697066735822122024bdf330348f180fe09475e0feb7840fe5718feffac476f54550390fb6cd2e5664736f6c634300080a0033",
+			"opcodes": "PUSH1 0x56 PUSH1 0x37 PUSH1 0xB DUP3 DUP3 DUP3 CODECOPY DUP1 MLOAD PUSH1 0x0 BYTE PUSH1 0x73 EQ PUSH1 0x2A JUMPI PUSH4 0x4E487B71 PUSH1 0xE0 SHL PUSH1 0x0 MSTORE PUSH1 0x0 PUSH1 0x4 MSTORE PUSH1 0x24 PUSH1 0x0 REVERT JUMPDEST ADDRESS PUSH1 0x0 MSTORE PUSH1 0x73 DUP2 MSTORE8 DUP3 DUP2 RETURN INVALID PUSH20 0x0 ADDRESS EQ PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 0x24 0xBD RETURN ADDRESS CALLVALUE DUP16 XOR 0xF 0xE0 SWAP5 PUSH22 0xE0FEB7840FE5718FEFFAC476F54550390FB6CD2E5664 PUSH20 0x6F6C634300080A00330000000000000000000000 ",
+			"sourceMap": "11821:2408:0:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;11821:2408:0;;;;;;;;;;;;;;;;;"
+		},
+		"deployedBytecode": {
+			"functionDebugData": {},
+			"generatedSources": [],
+			"immutableReferences": {},
+			"linkReferences": {},
+			"object": "73000000000000000000000000000000000000000030146080604052600080fdfea264697066735822122024bdf330348f180fe09475e0feb7840fe5718feffac476f54550390fb6cd2e5664736f6c634300080a0033",
+			"opcodes": "PUSH20 0x0 ADDRESS EQ PUSH1 0x80 PUSH1 0x40 MSTORE PUSH1 0x0 DUP1 REVERT INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 0x24 0xBD RETURN ADDRESS CALLVALUE DUP16 XOR 0xF 0xE0 SWAP5 PUSH22 0xE0FEB7840FE5718FEFFAC476F54550390FB6CD2E5664 PUSH20 0x6F6C634300080A00330000000000000000000000 ",
+			"sourceMap": "11821:2408:0:-:0;;;;;;;;"
+		},
+		"gasEstimates": {
+			"creation": {
+				"codeDepositCost": "17200",
+				"executionCost": "103",
+				"totalCost": "17303"
+			},
+			"internal": {
+				"safeApprove(address,address,uint256)": "infinite",
+				"safeTransfer(address,address,uint256)": "infinite",
+				"safeTransferETH(address,uint256)": "infinite",
+				"safeTransferFrom(address,address,address,uint256)": "infinite"
+			}
+		},
+		"methodIdentifiers": {}
+	},
+	"abi": []
+}

@@ -1,0 +1,84 @@
+{
+	"compiler": {
+		"version": "0.8.10+commit.fc410830"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "int256",
+						"name": "amount0Delta",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "amount1Delta",
+						"type": "int256"
+					},
+					{
+						"internalType": "bytes",
+						"name": "data",
+						"type": "bytes"
+					}
+				],
+				"name": "uniswapV3SwapCallback",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {
+				"uniswapV3SwapCallback(int256,int256,bytes)": {
+					"details": "In the implementation you must pay the pool tokens owed for the swap. The caller of this method must be checked to be a UniswapV3Pool deployed by the canonical UniswapV3Factory. amount0Delta and amount1Delta can both be 0 if no tokens were swapped.",
+					"params": {
+						"amount0Delta": "The amount of token0 that was sent (negative) or must be received (positive) by the pool by the end of the swap. If positive, the callback must send that amount of token0 to the pool.",
+						"amount1Delta": "The amount of token1 that was sent (negative) or must be received (positive) by the pool by the end of the swap. If positive, the callback must send that amount of token1 to the pool.",
+						"data": "Any data passed through by the caller via the IUniswapV3PoolActions#swap call"
+					}
+				}
+			},
+			"title": "Callback for IUniswapV3PoolActions#swap",
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {
+				"uniswapV3SwapCallback(int256,int256,bytes)": {
+					"notice": "Called to `msg.sender` after executing a swap via IUniswapV3Pool#swap."
+				}
+			},
+			"notice": "Any contract that calls IUniswapV3PoolActions#swap must implement this interface",
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"src/contracts/AaveFlashLoanV3Factory.sol": "IUniswapV3SwapCallback"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 1000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"src/contracts/AaveFlashLoanV3Factory.sol": {
+			"keccak256": "0x748119871fc01f4631417e6157479c005201bbd2dac097aa13084b39dd65cce7",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://74a3fd38f14b290f0ff4f6f345c71bfb5fd573e7711b64f424aca9d0ec01204a",
+				"dweb:/ipfs/QmaD1nNmW2pEurm1weL4bM8YpFJEz84aKX1aajWzY4JPJK"
+			]
+		}
+	},
+	"version": 1
+}

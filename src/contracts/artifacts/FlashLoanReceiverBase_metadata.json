@@ -1,0 +1,132 @@
+{
+	"compiler": {
+		"version": "0.8.10+commit.fc410830"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"name": "ADDRESSES_PROVIDER",
+				"outputs": [
+					{
+						"internalType": "contract IPoolAddressesProvider",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "POOL",
+				"outputs": [
+					{
+						"internalType": "contract IPool",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address[]",
+						"name": "assets",
+						"type": "address[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "amounts",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "premiums",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "address",
+						"name": "initiator",
+						"type": "address"
+					},
+					{
+						"internalType": "bytes",
+						"name": "params",
+						"type": "bytes"
+					}
+				],
+				"name": "executeOperation",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"author": "Aave",
+			"kind": "dev",
+			"methods": {
+				"executeOperation(address[],uint256[],uint256[],address,bytes)": {
+					"details": "Ensure that the contract can return the debt + premium, e.g., has      enough funds to repay and has approved the Pool to pull the total amount",
+					"params": {
+						"amounts": "The amounts of the flash-borrowed assets",
+						"assets": "The addresses of the flash-borrowed assets",
+						"initiator": "The address of the flashloan initiator",
+						"params": "The byte-encoded params passed when initiating the flashloan",
+						"premiums": "The fee of each flash-borrowed asset"
+					},
+					"returns": {
+						"_0": "True if the execution of the operation succeeds, false otherwise"
+					}
+				}
+			},
+			"title": "FlashLoanReceiverBase",
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {
+				"executeOperation(address[],uint256[],uint256[],address,bytes)": {
+					"notice": "Executes an operation after receiving the flash-borrowed assets"
+				}
+			},
+			"notice": "Base contract to develop a flashloan-receiver contract.",
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"src/contracts/AaveFlashLoanV3Factory.sol": "FlashLoanReceiverBase"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 1000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"src/contracts/AaveFlashLoanV3Factory.sol": {
+			"keccak256": "0x748119871fc01f4631417e6157479c005201bbd2dac097aa13084b39dd65cce7",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://74a3fd38f14b290f0ff4f6f345c71bfb5fd573e7711b64f424aca9d0ec01204a",
+				"dweb:/ipfs/QmaD1nNmW2pEurm1weL4bM8YpFJEz84aKX1aajWzY4JPJK"
+			]
+		}
+	},
+	"version": 1
+}

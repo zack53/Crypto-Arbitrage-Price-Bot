@@ -11,9 +11,9 @@ I want to be able to use this Crypto Arbitrage Price Bot to identify arbitrage o
 
 **Polygon Mainnet Address**
 
-**AaveFlashLoanV3Factory** - [0xeb1A2c696602eC6349242FD78c3398aEF0A8aD07](https://polygonscan.com/address/0xeb1A2c696602eC6349242FD78c3398aEF0A8aD07)
+**AaveFlashLoanV3Factory** - [0xae87e56a9dF1Baf99F77B7A75F6EFDFD03bc41e5](https://polygonscan.com/address/0xae87e56a9dF1Baf99F77B7A75F6EFDFD03bc41e5)
 
-**AaveFlashLoanV3** - [0xf794EfD64DE04EfeEA9bd708c5122e16e6246Ef4](https://polygonscan.com/address/0xf794efd64de04efeea9bd708c5122e16e6246ef4)
+**AaveFlashLoanV3** - [0xe139Ee6abdE011384549342fc5a92D26674040A2](https://polygonscan.com/address/0xe139Ee6abdE011384549342fc5a92D26674040A2)
 
 ### AaveFlashLoanV3Factory
 | Write Functions | Functions that anyone can call on the contract |
@@ -41,7 +41,7 @@ I want to be able to use this Crypto Arbitrage Price Bot to identify arbitrage o
 
 | Read Functions | Functions that anyone can read on the contract |
 | ----------- | ----------- |
-| ADDRESSES_PROVIDER | The Aave Address that provides the POOL address |
+| ADDRESSES_PROVIDER | The Aave contract address that provides the POOL address |
 | POOL | The pool contract address that the flashLoan is called on |
 | getOwner | The current Owner of the Flash Loan Contract |
 
@@ -66,7 +66,7 @@ A pool in UniSwap V3 is a pair. The WETH to WBTC pool can be found at the addres
 
 The sqrtPrice96 calculation can be found https://docs.uniswap.org/sdk/guides/fetching-prices .
 
-The TWAP price calculation, which is not implemented yet, can be found https://docs.uniswap.org/protocol/concepts/V3-overview/oracle .
+The TWAP price calculation, which is not implemented yet in the UniswapPriceCalculator.js file, can be found https://docs.uniswap.org/protocol/concepts/V3-overview/oracle .
 
 When deriving a price, the decimals used by the ERC20 token should always be accounted for. An example of how I took these token decimals into account can be seen in the code UniswapPriceCalculator.js file under the src directory within the uniswapGetSqrtPrice function. The decimals can be found at the ERC20 token address or of course dynamically with code.
 

@@ -1,0 +1,45 @@
+{
+	"compiler": {
+		"version": "0.8.10+commit.fc410830"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"src/contracts/AaveFlashLoanV3Factory.sol": "DataTypes"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 1000
+		},
+		"remappings": []
+	},
+	"sources": {
+		"src/contracts/AaveFlashLoanV3Factory.sol": {
+			"keccak256": "0x748119871fc01f4631417e6157479c005201bbd2dac097aa13084b39dd65cce7",
+			"license": "UNLICENSED",
+			"urls": [
+				"bzz-raw://74a3fd38f14b290f0ff4f6f345c71bfb5fd573e7711b64f424aca9d0ec01204a",
+				"dweb:/ipfs/QmaD1nNmW2pEurm1weL4bM8YpFJEz84aKX1aajWzY4JPJK"
+			]
+		}
+	},
+	"version": 1
+}

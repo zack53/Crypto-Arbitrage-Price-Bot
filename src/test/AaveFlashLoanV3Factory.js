@@ -75,6 +75,17 @@ describe( "AaveFlashLoanV3Factory contract", function () {
     assert.equal(await aaveFlashLoan.ADDRESSES_PROVIDER(),AaveILendingPoolAddressesProviderv3)
   });
 
+  it('Should fail to borrow WETH using UniSwap V3 first.', async function () {
+    let wethAmountToTransfer = 15
+    //The link at the top of this file describes how to override 
+    //the from value when dealing with transactions using truffle contracts.
+    //I am sending the wethAmountToTransfer to the contract to be swapped on
+    //UniSwap V3 Pool for WBTC. The WBTC is then transferred back to the account
+    //that sent the request.
+    await aaveFlashLoan.myFlashLoanCall(WETH, WBTC, 1, 3000, web3.utils.toWei(wethAmountToTransfer.toString(),'ether'), 0, 5000000000, {from: accounts[0]})
+  })
+
+
   it('Should borrow WETH using UniSwap V3 first.', async function () {
     let wethAmountToTransfer = 15
     //Send ETH to WETH contract in return for WETH
