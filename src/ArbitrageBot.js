@@ -6,7 +6,7 @@ const SushiSwapPriceCalculator = require('./util/SushiSwapPriceCalculator')
 const AaveFlashLoan = require('./artifacts/contracts/AaveFlashLoanV3.sol/AaveFlashLoanV3.json')
 const { WETH, WBTC, APE, ERC20ABI, UniPool1Address, UniPool2Address, UniPool3Address, SushiPair1Address, SushiPair2Address, SushiPair3Address, AaveFlashLoanAddress } = require('./EVMAddresses/evmAddresses')
 const { default: BigNumber } = require('bignumber.js')
-const {getPercentDifference, getTokenDirection, wrapToken, sendToken, getWalletEthBalance} = require('./util/ArbitrageUtil')
+const {getPercentDifference, getTokenDirection, wrapToken, sendToken, getWalletEthBalance, getPolygonGasPrice} = require('./util/ArbitrageUtil')
 
 const web3 = new Web3(new HDWalletProvider(process.env.PRIVATE_KEY,process.env.RPC_URL))
 
@@ -34,6 +34,7 @@ const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
 const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
 const APEContract = new web3.eth.Contract(ERC20ABI, APE)
 
+//const AaveFlashLoanAddress = '0xD494FA95f4C032ed3445a758D30324EE18A3335f'
 const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlashLoanAddress)
 
 let displayTokenInfo = async () =>{
@@ -61,7 +62,6 @@ let  executeFlashLoan = async (token0, token1, direction, poolFee, amountToTrade
     try{
         await AaveFlashLoanContract.methods.myFlashLoanCall(token0,token1,direction,poolFee,amountToTrade.toString(),amountOut.toString(),deadline).send({
             from: process.env.ACCOUNT,
-            gas:await AaveFlashLoanContract.methods.myFlashLoanCall(token0,token1,direction,poolFee,amountToTrade.toString(),amountOut.toString(),deadline).estimateGas(),
             gasPrice: await getPolygonGasPrice('fast')
         })
     }catch(error){
@@ -75,7 +75,10 @@ let tokenWithdraw = async(token0) => {
     
     
     try{
-        await AaveFlashLoanContract.methods.withdrawERC20Token(token0).send({from: process.env.ACCOUNT})
+        await AaveFlashLoanContract.methods.withdrawERC20Token(token0).send({
+            from: process.env.ACCOUNT,
+            gasPrice: await getPolygonGasPrice('fast')
+        })
     }catch(error){
         console.log('Token withdraw error')
         console.log(error)
@@ -95,34 +98,38 @@ let main = async () => {
         sushiPrice2 = await sushiSwapPriceCalc2.getPairPrice()
         sushiPrice3 = await sushiSwapPriceCalc3.getPairPrice()
 
-        pair1Dif = getPercentDifference(uniPrice,sushiPrice)
+        pair1Dif = getPercentDifference(uniPrice, sushiPrice)
         pair2Dif = getPercentDifference(uniPrice2,sushiPrice2)
         pair3Dif = getPercentDifference(uniPrice3,sushiPrice3)
 
+
         displayTokenInfo()
-        if(pair1Dif >= 1){
+        if(pair1Dif >= 1.5){
             console.log('pair1')
             let direction = getTokenDirection(uniPrice,sushiPrice)
             console.log(direction)
-            let amountToTrade = BigNumber(1).shiftedBy(18).toString()
+            let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc.token0Decimals)).toString()
+            console.log(amountToTrade)
             await executeFlashLoan(uniswapPriceCalc.token0,uniswapPriceCalc.token1,direction,uniswapPriceCalc.poolFee,amountToTrade,0,50000000000)
             await tokenWithdraw(uniswapPriceCalc.token0)
             process.exit()
         }
-        if(pair2Dif >= 2.5){
+        if(pair2Dif >= 1.5){
             console.log('pair2')
             let direction = getTokenDirection(uniPrice,sushiPrice)
             console.log(direction)
-            let amountToTrade = BigNumber(1).shiftedBy(18).toString()
+            let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc2.token0Decimals)).toString()
+            console.log(amountToTrade)
             await executeFlashLoan(uniswapPriceCalc2.token0,uniswapPriceCalc2.token1,direction,uniswapPriceCalc2.poolFee,amountToTrade,0,50000000000)
             await tokenWithdraw(uniswapPriceCalc2.token0)
             process.exit()
         }
-        if(pair3Dif >= 2.5){
+        if(pair3Dif >= 1.5){
             console.log('pair3')
             let direction = getTokenDirection(uniPrice3,sushiPrice3)
             console.log(direction)
-            let amountToTrade = BigNumber(1).shiftedBy(18).toString()
+            let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc3.token0Decimals)).toString()
+            console.log(amountToTrade)
             await executeFlashLoan(uniswapPriceCalc3.token0,uniswapPriceCalc3.token1,direction,uniswapPriceCalc3.poolFee,amountToTrade,0,50000000000)
             await tokenWithdraw(uniswapPriceCalc3.token0)
             process.exit()

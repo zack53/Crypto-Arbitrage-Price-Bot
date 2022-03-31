@@ -19,6 +19,10 @@ class UniswapV3PriceCalculator{
 
     }
 
+    shiftPairPrice(){
+        return (this.priceCalculationDirection) ? this.price.shiftedBy(-1*(this.token0Decimals-this.token1Decimals)) : this.price.shiftedBy(-1*(this.token1Decimals-this.token0Decimals))
+    }
+
     /**
      * Gets UniSwap pool address based on input parameters
      * @param {*} tokenA 
@@ -45,9 +49,7 @@ class UniswapV3PriceCalculator{
         //Get token0 by dividing ratioX96 / Q192 and shifting decimal 
         //values of the coins to put in human readable format.
         let price = ratioX96.dividedBy(this.Q192).shiftedBy(token0Dec-token1Dec)
-        //Get token0 by dividing Q192 / ratioX96 and shifting decimal 
-        //values of the coins to put in human readable format.
-        //let price2 =  this.Q192.dividedBy(ratioX96).shiftedBy(token1Dec-token0Dec)
+        this.price = price
         return price
     }
 
@@ -66,9 +68,7 @@ class UniswapV3PriceCalculator{
         //Get token0 by dividing ratioX96 / Q192 and shifting decimal 
         //values of the coins to put in human readable format.
         let price = this.Q192.dividedBy(ratioX96).shiftedBy(token0Dec-token1Dec)
-        //Get token0 by dividing Q192 / ratioX96 and shifting decimal 
-        //values of the coins to put in human readable format.
-        //let price2 =  this.Q192.dividedBy(ratioX96).shiftedBy(token1Dec-token0Dec)
+        this.price = price
         return price
     }
 
