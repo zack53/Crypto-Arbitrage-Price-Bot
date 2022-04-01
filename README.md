@@ -14,8 +14,8 @@ The first successful Flash Loan in production can be found at the [this transact
 
 | **Polygon Mainnet Address** | |
 | ----------- | ----------- |
-| **AaveFlashLoanV3Factory** | [0xae87e56a9dF1Baf99F77B7A75F6EFDFD03bc41e5](https://polygonscan.com/address/0xae87e56a9dF1Baf99F77B7A75F6EFDFD03bc41e5) |
-| **AaveFlashLoanV3** | [0xe139Ee6abdE011384549342fc5a92D26674040A2](https://polygonscan.com/address/0xe139Ee6abdE011384549342fc5a92D26674040A2) |
+| **AaveFlashLoanV3Factory** | [0x64D3D6D7001697C03F02250BB0451dD1c48b4C13](https://polygonscan.com/address/0x64D3D6D7001697C03F02250BB0451dD1c48b4C13) |
+| **AaveFlashLoanV3** | [0xf2615c9169E1b42fBE21847335cDe3814cD8Cddf](https://polygonscan.com/address/0xf2615c9169E1b42fBE21847335cDe3814cD8Cddf) |
 
 ### AaveFlashLoanV3Factory
 | Write Functions | Functions that anyone can call on the contract |
