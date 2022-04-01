@@ -157,4 +157,20 @@ describe( "AaveFlashLoanV3Factory contract", function () {
     assert.equal(await aaveFlashLoan.getOwner(), accounts[1])
   })
 
+  it('Should Set New Minimum Profit Dividor.', async function () {
+    assert.equal(await aaveFlashLoan.minimumProfitDividor(), 40000)
+    try{
+      await aaveFlashLoan.setMinimumProfitDividor(100000,{from:accounts[1]});
+    }catch(error){}
+    assert.equal(await aaveFlashLoan.minimumProfitDividor(), 100000)
+  })
+
+  it('Should Fail to Set New Minimum Profit Dividor.', async function () {
+    assert.equal(await aaveFlashLoan.minimumProfitDividor(), 100000)
+    try{
+      await aaveFlashLoan.setMinimumProfitDividor(50000,{from:accounts[2]});
+    }catch(error){}
+    assert.equal(await aaveFlashLoan.minimumProfitDividor(), 100000)
+  })
+
 })

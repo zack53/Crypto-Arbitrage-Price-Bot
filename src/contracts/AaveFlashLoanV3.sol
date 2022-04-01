@@ -235,7 +235,7 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
      /**
         Allows owner to change the minimumProfitDividor
      */
-    function setMinimumProfitDividor(uint16 setAmount) external onlyOwner {
+    function setMinimumProfitDividor(uint24 setAmount) external onlyOwner {
         minimumProfitDividor = setAmount;
     }
 }
