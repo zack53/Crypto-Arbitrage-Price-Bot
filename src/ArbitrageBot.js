@@ -34,6 +34,7 @@ const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
 const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
 const APEContract = new web3.eth.Contract(ERC20ABI, APE)
 
+let loopCounter = 0
 //const AaveFlashLoanAddress = '0xD494FA95f4C032ed3445a758D30324EE18A3335f'
 const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlashLoanAddress)
 
@@ -87,21 +88,25 @@ let main = async () => {
     if (isPolling == false){
 
         isPolling = true
+        try{
+            uniPrice = await uniswapPriceCalc.getPairPrice()
+            uniPrice2 = await uniswapPriceCalc2.getPairPrice()
+            uniPrice3 = await uniswapPriceCalc3.getPairPrice()
+
+            sushiPrice = await sushiSwapPriceCalc.getPairPrice()
+            sushiPrice2 = await sushiSwapPriceCalc2.getPairPrice()
+            sushiPrice3 = await sushiSwapPriceCalc3.getPairPrice()
+
+            pair1Dif = getPercentDifference(uniPrice, sushiPrice)
+            pair2Dif = getPercentDifference(uniPrice2,sushiPrice2)
+            pair3Dif = getPercentDifference(uniPrice3,sushiPrice3)
+        }catch(error){
+            console.log(error)
+        }
         
-        uniPrice = await uniswapPriceCalc.getPairPrice()
-        uniPrice2 = await uniswapPriceCalc2.getPairPrice()
-        uniPrice3 = await uniswapPriceCalc3.getPairPrice()
-
-        sushiPrice = await sushiSwapPriceCalc.getPairPrice()
-        sushiPrice2 = await sushiSwapPriceCalc2.getPairPrice()
-        sushiPrice3 = await sushiSwapPriceCalc3.getPairPrice()
-
-        pair1Dif = getPercentDifference(uniPrice, sushiPrice)
-        pair2Dif = getPercentDifference(uniPrice2,sushiPrice2)
-        pair3Dif = getPercentDifference(uniPrice3,sushiPrice3)
-
-
-        // displayTokenInfo()
+        if(loopCounter%1000==0){
+            displayTokenInfo()
+        }
         if(pair1Dif >= 2){
             console.log('pair1')
             let direction = getTokenDirection(uniPrice,sushiPrice)
@@ -135,6 +140,7 @@ let main = async () => {
 
 
         isPolling = false
+        loopCounter += 1
     }
 }
 
