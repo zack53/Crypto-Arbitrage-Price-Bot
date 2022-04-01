@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crypto-arb-bot-deployment
+  labels:
+    app: crypto-arb-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crypto-arb-bot
+  template:
+    metadata:
+      labels:
+        app: crypto-arb-bot
+    spec:
+      containers:
+      - name: crypto-arb-bot
+        image: <your-registry-here/image>
+        command: ["/bin/sh"]
+        args: ["-c","node ArbitrageBot.js"]
+      imagePullSecrets:
+        - name: <your-image-pull-secret-here>
