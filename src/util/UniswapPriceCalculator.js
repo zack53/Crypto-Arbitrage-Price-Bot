@@ -19,8 +19,8 @@ class UniswapV3PriceCalculator{
 
     }
 
-    shiftPairPrice(){
-        return (this.priceCalculationDirection) ? this.price.shiftedBy(-1*(this.token0Decimals-this.token1Decimals)) : this.price.shiftedBy(-1*(this.token1Decimals-this.token0Decimals))
+    getOriginalPrice(){
+        return this.originalPairPrice
     }
 
     /**
@@ -48,9 +48,11 @@ class UniswapV3PriceCalculator{
         let ratioX96 = BigNumber(results.sqrtPriceX96).exponentiatedBy(2)
         //Get token0 by dividing ratioX96 / Q192 and shifting decimal 
         //values of the coins to put in human readable format.
-        let price = ratioX96.dividedBy(this.Q192).shiftedBy(token0Dec-token1Dec)
+        let price = ratioX96.dividedBy(this.Q192)
+        this.originalPairPrice = price
+        price = price.shiftedBy(token0Dec-token1Dec)
         this.price = price
-        return price
+        return price 
     }
 
     /**
@@ -67,7 +69,10 @@ class UniswapV3PriceCalculator{
         let ratioX96 = BigNumber(results.sqrtPriceX96).exponentiatedBy(2)
         //Get token0 by dividing ratioX96 / Q192 and shifting decimal 
         //values of the coins to put in human readable format.
-        let price = this.Q192.dividedBy(ratioX96).shiftedBy(token0Dec-token1Dec)
+        let price = this.Q192.dividedBy(ratioX96)
+        this.originalPairPrice = price
+        // console.log(this.originalPairPrice.toString())
+        price = price.shiftedBy(token0Dec-token1Dec)
         this.price = price
         return price
     }
@@ -116,6 +121,10 @@ class UniswapV3PriceCalculator{
         this.priceCalculationDirection = (price1 > price2) ? true : false
     }
 
+    setTokenDirectionForTrade(){
+        this.token0Trade = (this.priceCalculationDirection) ? this.token0 : this.token1
+        this.token1Trade = (this.priceCalculationDirection) ? this.token1 : this.token0
+    }
     /**
      * Returns the symbols to string where the token of least value is to the left
      * and token of greatest value is to the right i.e. WMATIC/WBTC
@@ -135,6 +144,7 @@ class UniswapV3PriceCalculator{
         if(this.priceCalculationDirection  == ''){
             await this.setPoolTokenInfo()
             await this.setPriceCalculationDirection()
+            this.setTokenDirectionForTrade()
         }
         return (this.priceCalculationDirection) ? await this.uniswapGetSqrtPrice(this.token0Decimals,this.token1Decimals) : await this.uniswapGetSqrtPriceReversed(this.token1Decimals,this.token0Decimals)
     }
