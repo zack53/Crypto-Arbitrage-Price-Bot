@@ -19,5 +19,12 @@ spec:
         image: <your-registry-here/image>
         command: ["/bin/sh"]
         args: ["-c","node ArbitrageBot.js"]
+        livenessProbe:
+          exec:
+            command:
+            - rm
+            - tmp/healthcheck.log
+          initialDelaySeconds: 45
+          periodSeconds: 45
       imagePullSecrets:
         - name: <your-image-pull-secret-here>
