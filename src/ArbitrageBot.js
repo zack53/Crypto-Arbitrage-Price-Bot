@@ -76,7 +76,7 @@ let tokenWithdraw = async(token0) => {
     try{
         await AaveFlashLoanContract.methods.withdrawERC20Token(token0).send({
             from: process.env.ACCOUNT,
-            gasPrice: await getPolygonGasPrice('fast')
+            gasPrice: await getPolygonGasPrice('standard')
         })
     }catch(error){
         console.log('Token withdraw error')
@@ -100,41 +100,47 @@ let main = async () => {
             pair1Dif = getPercentDifference(uniPrice, sushiPrice)
             pair2Dif = getPercentDifference(uniPrice2,sushiPrice2)
             pair3Dif = getPercentDifference(uniPrice3,sushiPrice3)
+
+            // console.log(uniswapPriceCalc.getOriginalPrice().toString())
+            
+            // console.log(uniswapPriceCalc2.getOriginalPrice().toString())
+            
+            // console.log(uniswapPriceCalc3.getOriginalPrice().toString())
         }catch(error){
             console.log(error)
         }
-        
-        if(loopCounter%1000==0){
+
+        if(loopCounter%10==0){
             displayTokenInfo()
         }
-        if(pair1Dif >= 2){
+        if(pair1Dif >= 1.5){
             console.log('pair1')
             let direction = getTokenDirection(uniPrice,sushiPrice)
             console.log(direction)
             let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc.token0Decimals)).toString()
             console.log(amountToTrade)
-            await executeFlashLoan(uniswapPriceCalc.token0,uniswapPriceCalc.token1,direction,uniswapPriceCalc.poolFee,amountToTrade,0,50000000000)
-            await tokenWithdraw(uniswapPriceCalc.token0)
+            await executeFlashLoan(uniswapPriceCalc.token0Trade,uniswapPriceCalc.token1Trade,direction,uniswapPriceCalc.poolFee,amountToTrade,0,50000000000)
+            await tokenWithdraw(uniswapPriceCalc.token0Trade)
             process.exit()
         }
-        if(pair2Dif >= 2){
+        if(pair2Dif >= 1.5){
             console.log('pair2')
             let direction = getTokenDirection(uniPrice,sushiPrice)
             console.log(direction)
             let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc2.token0Decimals)).toString()
             console.log(amountToTrade)
-            await executeFlashLoan(uniswapPriceCalc2.token0,uniswapPriceCalc2.token1,direction,uniswapPriceCalc2.poolFee,amountToTrade,0,50000000000)
-            await tokenWithdraw(uniswapPriceCalc2.token0)
+            await executeFlashLoan(uniswapPriceCalc2.token0Trade,uniswapPriceCalc2.token1Trade,direction,uniswapPriceCalc2.poolFee,amountToTrade,0,50000000000)
+            await tokenWithdraw(uniswapPriceCalc2.token0Trade)
             process.exit()
         }
-        if(pair3Dif >= 2){
+        if(pair3Dif >= 1.5){
             console.log('pair3')
             let direction = getTokenDirection(uniPrice3,sushiPrice3)
             console.log(direction)
             let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc3.token0Decimals)).toString()
             console.log(amountToTrade)
-            await executeFlashLoan(uniswapPriceCalc3.token0,uniswapPriceCalc3.token1,direction,uniswapPriceCalc3.poolFee,amountToTrade,0,50000000000)
-            await tokenWithdraw(uniswapPriceCalc3.token0)
+            await executeFlashLoan(uniswapPriceCalc3.token0Trade,uniswapPriceCalc3.token1Trade,direction,uniswapPriceCalc3.poolFee,amountToTrade,0,50000000000)
+            await tokenWithdraw(uniswapPriceCalc3.token0Trade)
             process.exit()
         }
 
