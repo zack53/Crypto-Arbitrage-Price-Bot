@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crypto-arb-bot-deployment
+  labels:
+    app: crypto-arb-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crypto-arb-bot
+  template:
+    metadata:
+      labels:
+        app: crypto-arb-bot
+    spec:
+      containers:
+      - name: crypto-arb-bot
+        image: registry.digitalocean.com/crypto-arbitrage-bot-nodejs/crypto-arb-bot:v1.0
+        command: ["/bin/sh"]
+        args: ["-c","node ArbitrageBot.js"]
+        livenessProbe:
+          exec:
+            command:
+            - rm
+            - tmp/healthcheck.log
+          initialDelaySeconds: 45
+          periodSeconds: 45
+      imagePullSecrets:
+        - name: crypto-arbitrage-bot-nodejs

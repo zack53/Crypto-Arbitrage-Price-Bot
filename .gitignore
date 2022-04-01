@@ -11,3 +11,4 @@ cache/
 hardhat.config.js
 FlashLoanTest.js
 GetTokenInfoFromContract.js
+crypto-deploy.yaml
