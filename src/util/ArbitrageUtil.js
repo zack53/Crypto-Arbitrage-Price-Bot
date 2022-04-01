@@ -23,9 +23,14 @@ module.exports = {
      * @param {*} sushiSwapPrice 
      * @returns 
      */
-    getTokenDirection: (uniSwapPrice,sushiSwapPrice) => {
+    getTokenDirection: (uniSwapPrice,sushiSwapPrice, isReversed) => {
+        let direction = ''
         //Assuming uniswap is first price
-        let direction = (uniSwapPrice >= sushiSwapPrice) ? 1 : 0
+        if(isReversed){
+            direction = (uniSwapPrice < sushiSwapPrice) ? 1 : 0
+        }else{
+            direction = (uniSwapPrice >= sushiSwapPrice) ? 1 : 0
+        }
         return direction
     },
 

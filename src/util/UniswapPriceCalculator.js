@@ -115,16 +115,32 @@ class UniswapV3PriceCalculator{
         await this.setTokenSymbols()
     }
 
+    /**
+     * Sets the direction the price calculation needs to be.
+     */
     async setPriceCalculationDirection(){
         let price1 = await this.uniswapGetSqrtPrice(this.token0Decimals,this.token1Decimals)
         let price2 = await this.uniswapGetSqrtPriceReversed(this.token1Decimals,this.token0Decimals)
         this.priceCalculationDirection = (price1 > price2) ? true : false
     }
 
+    /**
+     * Sets token direction for trade
+     */
     setTokenDirectionForTrade(){
         this.token0Trade = (this.priceCalculationDirection) ? this.token0 : this.token1
         this.token1Trade = (this.priceCalculationDirection) ? this.token1 : this.token0
+        this.setTokenDecimalsForTrace()
     }
+
+    /**
+     * Sets decimal information for trade
+     */
+    setTokenDecimalsForTrace(){
+        this.token0TradeDecimals = (this.priceCalculationDirection) ? this.token0Decimals : this.token1Decimals
+        this.token1TradeDecimals = (this.priceCalculationDirection) ? this.token1Decimals : this.token0Decimals
+    }
+    
     /**
      * Returns the symbols to string where the token of least value is to the left
      * and token of greatest value is to the right i.e. WMATIC/WBTC

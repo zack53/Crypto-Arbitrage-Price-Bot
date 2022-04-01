@@ -23,7 +23,13 @@ contract AaveFlashLoanV3 is FlashLoanReceiverBase{
     */
     address owner;
 
-    uint16 public minimumProfitDividor = 400;
+    /**
+        This is used to determine the minimum Amout out
+        when trading back to the original token. By 
+        default I have set this to 40000 which will
+        ensure a minimum of .25% profit.
+    */
+    uint24 public minimumProfitDividor = 40000;
     
     /**
         Variables used in construction variable to set

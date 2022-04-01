@@ -7,13 +7,15 @@ The Arbitrage bot will be making use of Aave Flash Loan V3 to maximize potential
 ## Current plans
 I want to be able to use this Crypto Arbitrage Price Bot to identify arbitrage opportunities and call a flash loan using Aave V3 Flash Loan contracts. This flash loan contract will then borrow a token from a lender, make the transfer on one exchange to a different token i.e. from token0 to token1. Then, I will go to another exchange in the contract and transfer from token1 back to token0 before repaying the loan. The Solidity smart contracts have been tested and deployed. I am working on getting the Arbitrage identifier code to work better.
 
+## First successful Flash Loan in production
+The first successful Flash Loan in production can be found at the [this transaction](https://polygonscan.com/tx/0xb94b2e6abec1adad5a2bacf36168d6aabfb6c10ea89619f3af1d1d92006503c4)
+
 ## Deployed Contracts
 
-**Polygon Mainnet Address**
-
-**AaveFlashLoanV3Factory** - [0xae87e56a9dF1Baf99F77B7A75F6EFDFD03bc41e5](https://polygonscan.com/address/0xae87e56a9dF1Baf99F77B7A75F6EFDFD03bc41e5)
-
-**AaveFlashLoanV3** - [0xe139Ee6abdE011384549342fc5a92D26674040A2](https://polygonscan.com/address/0xe139Ee6abdE011384549342fc5a92D26674040A2)
+| **Polygon Mainnet Address** | |
+| ----------- | ----------- |
+| **AaveFlashLoanV3Factory** | [0xae87e56a9dF1Baf99F77B7A75F6EFDFD03bc41e5](https://polygonscan.com/address/0xae87e56a9dF1Baf99F77B7A75F6EFDFD03bc41e5) |
+| **AaveFlashLoanV3** | [0xe139Ee6abdE011384549342fc5a92D26674040A2](https://polygonscan.com/address/0xe139Ee6abdE011384549342fc5a92D26674040A2) |
 
 ### AaveFlashLoanV3Factory
 | Write Functions | Functions that anyone can call on the contract |

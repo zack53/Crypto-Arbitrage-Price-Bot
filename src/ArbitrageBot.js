@@ -4,20 +4,33 @@ const Web3 = require('web3')
 const UniswapV3PriceCalculator = require('./util/UniswapPriceCalculator')
 const SushiSwapPriceCalculator = require('./util/SushiSwapPriceCalculator')
 const AaveFlashLoan = require('./artifacts/contracts/AaveFlashLoanV3.sol/AaveFlashLoanV3.json')
-const { WETH, WBTC, APE, ERC20ABI, UniPool1Address, UniPool2Address, UniPool3Address, SushiPair1Address, SushiPair2Address, SushiPair3Address, AaveFlashLoanAddress } = require('./EVMAddresses/evmAddresses')
+const { WETH, WBTC, APE, ERC20ABI, UniPool1Address, UniPool2Address, UniPool3Address, SushiPair1Address, SushiPair2Address, SushiPair3Address, AaveFlashLoanAddress, AavePoolDataProviderv3Address, AavePoolDataProviderv3ABI } = require('./EVMAddresses/evmAddresses')
 const { default: BigNumber } = require('bignumber.js')
 const {getPercentDifference, getTokenDirection, wrapToken, sendToken, getWalletEthBalance, getPolygonGasPrice} = require('./util/ArbitrageUtil')
+const fs = require('fs')
 
+/**
+ * Initializes web3 with account information
+ */
 const web3 = new Web3(new HDWalletProvider(process.env.PRIVATE_KEY,process.env.RPC_URL))
 
+/**
+ * Initializes UniSwap calculator objects
+ */
 let uniswapPriceCalc = new UniswapV3PriceCalculator(web3, UniPool1Address)
 let uniswapPriceCalc2 = new UniswapV3PriceCalculator(web3, UniPool2Address)
 let uniswapPriceCalc3 = new UniswapV3PriceCalculator(web3, UniPool3Address)
 
+/**
+ * Initializes Sushi Calculator objects
+ */
 let sushiSwapPriceCalc = new SushiSwapPriceCalculator(web3, SushiPair1Address)
 let sushiSwapPriceCalc2 = new SushiSwapPriceCalculator(web3, SushiPair2Address)
 let sushiSwapPriceCalc3 = new SushiSwapPriceCalculator(web3, SushiPair3Address)
 
+/**
+ * Initializes global variables
+ */
 let uniPrice
 let uniPrice2
 let uniPrice3
@@ -30,14 +43,22 @@ let pair1Dif
 let pair2Dif
 let pair3Dif
 
-const WETHContract = new web3.eth.Contract(ERC20ABI, WETH)
-const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
-const APEContract = new web3.eth.Contract(ERC20ABI, APE)
+let pair1AavePool = ''
+let pair2AavePool = ''
+let pair3AavePool = ''
+let aaveSetDirection = false
 
 let loopCounter = 0
-//const AaveFlashLoanAddress = '0xD494FA95f4C032ed3445a758D30324EE18A3335f'
-const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlashLoanAddress)
 
+/**
+ * Intializes contracts needed for Flash Loan
+ */
+const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlashLoanAddress)
+const AaveDataProvder = new web3.eth.Contract(AavePoolDataProviderv3ABI, AavePoolDataProviderv3Address)
+
+/**
+ * Displays current token information in a table format
+ */
 let displayTokenInfo = () =>{
     console.table({           
         'UniSwap V3':{
@@ -58,6 +79,16 @@ let displayTokenInfo = () =>{
     })
 }
 
+/**
+ * Flash loan execution method. Needs to be moved to the ArbitrageBot.js file
+ * @param {*} token0 
+ * @param {*} token1 
+ * @param {*} direction 
+ * @param {*} poolFee 
+ * @param {*} amountToTrade 
+ * @param {*} amountOut 
+ * @param {*} deadline 
+ */
 let  executeFlashLoan = async (token0, token1, direction, poolFee, amountToTrade, amountOut, deadline) => {
     displayTokenInfo()
     try{
@@ -68,10 +99,14 @@ let  executeFlashLoan = async (token0, token1, direction, poolFee, amountToTrade
     }catch(error){
         console.log('Flash Loan execution error')
         console.log(error)
-        process.exit()
     }
 }
 
+/**
+ * Token withdraw method. Needs to be moved to the ArbitrageUtil.js
+ * file.
+ * @param {*} token0 
+ */
 let tokenWithdraw = async(token0) => {
     try{
         await AaveFlashLoanContract.methods.withdrawERC20Token(token0).send({
@@ -81,75 +116,164 @@ let tokenWithdraw = async(token0) => {
     }catch(error){
         console.log('Token withdraw error')
         console.log(error)
+    }
+}
+
+/**
+ * Main function that is used for polling every 3 seconds.
+ * @returns 
+ */
+let main = async () => {
+    // Stops polling if one is already happening
+    if (isPolling){
+        return
+    }
+
+    isPolling = true
+    try{
+        uniPrice = await uniswapPriceCalc.getPairPrice()
+        uniPrice2 = await uniswapPriceCalc2.getPairPrice()
+        uniPrice3 = await uniswapPriceCalc3.getPairPrice()
+
+        sushiPrice = await sushiSwapPriceCalc.getPairPrice()
+        sushiPrice2 = await sushiSwapPriceCalc2.getPairPrice()
+        sushiPrice3 = await sushiSwapPriceCalc3.getPairPrice()
+
+        pair1Dif = getPercentDifference(uniPrice, sushiPrice)
+        pair2Dif = getPercentDifference(uniPrice2,sushiPrice2)
+        pair3Dif = getPercentDifference(uniPrice3,sushiPrice3)
+
+    }catch(error){
+        console.log(error)
+    }
+
+    // Need to determine if the assets are available to borrow from Aave
+    // We will exit the process if neither are found. If one is found,
+    // we will alter the decimals of the trade and swap token0Trade
+    // to be token1Trade. This way we can start with a token that Aave
+    // has reserves for. 
+    if(!aaveSetDirection){
+        try{
+            await AaveDataProvder.methods.getATokenTotalSupply(uniswapPriceCalc.token0Trade).call()
+            pair1AavePool = true
+
+        }catch(error){
+            try{
+                await AaveDataProvder.methods.getATokenTotalSupply(uniswapPriceCalc.token1Trade).call()
+                pair1AavePool = false
+            }catch(error){
+                console.log(`Neither of the tokens are available to borrow. Token0 ${uniswapPriceCalc.token0Trade} - Token1 ${uniswapPriceCalc.token1Trade}`)
+                process.exit()
+            }
+        }
+        try{
+            await AaveDataProvder.methods.getATokenTotalSupply(uniswapPriceCalc2.token0Trade).call()
+            pair2AavePool = true
+
+        }catch(error){
+            try{
+                await AaveDataProvder.methods.getATokenTotalSupply(uniswapPriceCalc2.token1Trade).call()
+                pair2AavePool = false
+            }catch(error){
+                console.log(`Neither of the tokens are available to borrow. Token0 ${uniswapPriceCalc.token0Trade} - Token1 ${uniswapPriceCalc.token1Trade}`)
+                process.exit()
+            }
+        }
+        try{
+            await AaveDataProvder.methods.getATokenTotalSupply(uniswapPriceCalc3.token0Trade).call()
+            pair3AavePool = true
+
+        }catch(error){
+            try{
+                await AaveDataProvder.methods.getATokenTotalSupply(uniswapPriceCalc3.token1Trade).call()
+                pair3AavePool = false
+            }catch(error){
+                console.log(`Neither of the tokens are available to borrow. Token0 ${uniswapPriceCalc.token0Trade} - Token1 ${uniswapPriceCalc.token1Trade}`)
+                process.exit()
+            }
+        }
+        // We have to alter the current information to be on the
+        // correct side now that we know which side the token needs
+        // to be for a successful loan from Aave.
+        if(!pair1AavePool){
+            tempToken = uniswapPriceCalc.token0Trade
+            uniswapPriceCalc.token0Trade = uniswapPriceCalc.token1Trade
+            uniswapPriceCalc.token1Trade = tempToken
+
+            tempDecimal = uniswapPriceCalc.token0TradeDecimals
+            uniswapPriceCalc.token0TradeDecimals = uniswapPriceCalc.token1TradeDecimals
+            uniswapPriceCalc.token1TradeDecimals = tempDecimal
+        }
+        if(!pair2AavePool){
+            tempToken = uniswapPriceCalc2.token0Trade
+            uniswapPriceCalc2.token0Trade = uniswapPriceCalc2.token1Trade
+            uniswapPriceCalc2.token1Trade = tempToken
+
+            tempDecimal = uniswapPriceCalc2.token0TradeDecimals
+            uniswapPriceCalc2.token0TradeDecimals = uniswapPriceCalc2.token1TradeDecimals
+            uniswapPriceCalc2.token1TradeDecimals = tempDecimal
+        
+        }
+        if(!pair3AavePool){
+            tempToken = uniswapPriceCalc3.token0Trade
+            uniswapPriceCalc3.token0Trade = uniswapPriceCalc3.token1Trade
+            uniswapPriceCalc3.token1Trade = tempToken
+
+            tempDecimal = uniswapPriceCalc3.token0TradeDecimals
+            uniswapPriceCalc3.token0TradeDecimals = uniswapPriceCalc3.token1TradeDecimals
+            uniswapPriceCalc3.token1TradeDecimals = tempDecimal
+        
+        }
+        aaveSetDirection = true
+    }
+
+    // Displays table information roughly every 30 seconds
+    if(loopCounter%10==0){
+        displayTokenInfo()
+    }
+
+    // Ensures that the difference in pairs is high enough for profit.
+    // If a profit can be made, we execute the flash loan with the information
+    // needed.
+    if(pair1Dif >= 2){
+        console.log('pair1')
+        let direction = getTokenDirection(uniPrice,sushiPrice, !pair1AavePool)
+        console.log(direction)
+        let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc.token0TradeDecimals)).dividedBy(4).toString()
+        console.log(amountToTrade)
+        await executeFlashLoan(uniswapPriceCalc.token0Trade,uniswapPriceCalc.token1Trade,direction,uniswapPriceCalc.poolFee,amountToTrade,0,50000000000)
+        await tokenWithdraw(uniswapPriceCalc.token0Trade)
         process.exit()
     }
-}
-let main = async () => {
-    if (isPolling == false){
-
-        isPolling = true
-        try{
-            uniPrice = await uniswapPriceCalc.getPairPrice()
-            uniPrice2 = await uniswapPriceCalc2.getPairPrice()
-            uniPrice3 = await uniswapPriceCalc3.getPairPrice()
-
-            sushiPrice = await sushiSwapPriceCalc.getPairPrice()
-            sushiPrice2 = await sushiSwapPriceCalc2.getPairPrice()
-            sushiPrice3 = await sushiSwapPriceCalc3.getPairPrice()
-
-            pair1Dif = getPercentDifference(uniPrice, sushiPrice)
-            pair2Dif = getPercentDifference(uniPrice2,sushiPrice2)
-            pair3Dif = getPercentDifference(uniPrice3,sushiPrice3)
-
-            // console.log(uniswapPriceCalc.getOriginalPrice().toString())
-            
-            // console.log(uniswapPriceCalc2.getOriginalPrice().toString())
-            
-            // console.log(uniswapPriceCalc3.getOriginalPrice().toString())
-        }catch(error){
-            console.log(error)
-        }
-
-        if(loopCounter%10==0){
-            displayTokenInfo()
-        }
-        if(pair1Dif >= 1.5){
-            console.log('pair1')
-            let direction = getTokenDirection(uniPrice,sushiPrice)
-            console.log(direction)
-            let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc.token0Decimals)).toString()
-            console.log(amountToTrade)
-            await executeFlashLoan(uniswapPriceCalc.token0Trade,uniswapPriceCalc.token1Trade,direction,uniswapPriceCalc.poolFee,amountToTrade,0,50000000000)
-            await tokenWithdraw(uniswapPriceCalc.token0Trade)
-            process.exit()
-        }
-        if(pair2Dif >= 1.5){
-            console.log('pair2')
-            let direction = getTokenDirection(uniPrice,sushiPrice)
-            console.log(direction)
-            let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc2.token0Decimals)).toString()
-            console.log(amountToTrade)
-            await executeFlashLoan(uniswapPriceCalc2.token0Trade,uniswapPriceCalc2.token1Trade,direction,uniswapPriceCalc2.poolFee,amountToTrade,0,50000000000)
-            await tokenWithdraw(uniswapPriceCalc2.token0Trade)
-            process.exit()
-        }
-        if(pair3Dif >= 1.5){
-            console.log('pair3')
-            let direction = getTokenDirection(uniPrice3,sushiPrice3)
-            console.log(direction)
-            let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc3.token0Decimals)).toString()
-            console.log(amountToTrade)
-            await executeFlashLoan(uniswapPriceCalc3.token0Trade,uniswapPriceCalc3.token1Trade,direction,uniswapPriceCalc3.poolFee,amountToTrade,0,50000000000)
-            await tokenWithdraw(uniswapPriceCalc3.token0Trade)
-            process.exit()
-        }
-
-
-        isPolling = false
-        loopCounter += 1
+    if(pair2Dif >= 2){
+        console.log('pair2')
+        let direction = getTokenDirection(uniPrice,sushiPrice, !pair2AavePool)
+        console.log(direction)
+        let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc2.token0TradeDecimals)).dividedBy(4).toString()
+        console.log(amountToTrade)
+        await executeFlashLoan(uniswapPriceCalc2.token0Trade,uniswapPriceCalc2.token1Trade,direction,uniswapPriceCalc2.poolFee,amountToTrade,0,50000000000)
+        await tokenWithdraw(uniswapPriceCalc2.token0Trade)
+        process.exit()
     }
+    if(pair3Dif >= 2){
+        console.log('pair3')
+        let direction = getTokenDirection(uniPrice3,sushiPrice3, !pair3AavePool)
+        console.log(direction)
+        let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc3.token0TradeDecimals)).dividedBy(4).toString()
+        console.log(amountToTrade)
+        await executeFlashLoan(uniswapPriceCalc3.token0Trade,uniswapPriceCalc3.token1Trade,direction,uniswapPriceCalc3.poolFee,amountToTrade,0,50000000000)
+        await tokenWithdraw(uniswapPriceCalc3.token0Trade)
+        process.exit()
+    }
+
+    // Write log file for liveness check in Kubernetes cluster
+    fs.writeFileSync('./tmp/healthcheck.log','running')
+    // Sets information for next polling
+    isPolling = false
+    loopCounter += 1
 }
 
+// Starts the polling of the main() function
 let priceMonitor
 let isPolling = false
 const POLLING_INTERVAL = process.env.POLLING_INTERVAL || 3000 // 3 Seconds
