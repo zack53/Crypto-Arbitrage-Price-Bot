@@ -9,11 +9,10 @@ I want to be able to use this Crypto Arbitrage Price Bot to identify arbitrage o
 
 ## Deployed Contracts
 
-**Polygon Mainnet Address**
-
-**AaveFlashLoanV3Factory** - [0xae87e56a9dF1Baf99F77B7A75F6EFDFD03bc41e5](https://polygonscan.com/address/0xae87e56a9dF1Baf99F77B7A75F6EFDFD03bc41e5)
-
-**AaveFlashLoanV3** - [0xe139Ee6abdE011384549342fc5a92D26674040A2](https://polygonscan.com/address/0xe139Ee6abdE011384549342fc5a92D26674040A2)
+| **Polygon Mainnet Address** | |
+| ----------- | ----------- |
+| **AaveFlashLoanV3Factory** | [0xae87e56a9dF1Baf99F77B7A75F6EFDFD03bc41e5](https://polygonscan.com/address/0xae87e56a9dF1Baf99F77B7A75F6EFDFD03bc41e5) |
+| **AaveFlashLoanV3** | [0xe139Ee6abdE011384549342fc5a92D26674040A2](https://polygonscan.com/address/0xe139Ee6abdE011384549342fc5a92D26674040A2) |
 
 ### AaveFlashLoanV3Factory
 | Write Functions | Functions that anyone can call on the contract |
