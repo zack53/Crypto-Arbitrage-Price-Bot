@@ -243,7 +243,6 @@ let main = async () => {
         console.log(amountToTrade)
         await executeFlashLoan(uniswapPriceCalc.token0Trade,uniswapPriceCalc.token1Trade,direction,uniswapPriceCalc.poolFee,amountToTrade,0,50000000000)
         await tokenWithdraw(uniswapPriceCalc.token0Trade)
-        process.exit()
     }
     if(pair2Dif >= 2){
         console.log('pair2')
@@ -253,7 +252,6 @@ let main = async () => {
         console.log(amountToTrade)
         await executeFlashLoan(uniswapPriceCalc2.token0Trade,uniswapPriceCalc2.token1Trade,direction,uniswapPriceCalc2.poolFee,amountToTrade,0,50000000000)
         await tokenWithdraw(uniswapPriceCalc2.token0Trade)
-        process.exit()
     }
     if(pair3Dif >= 2){
         console.log('pair3')
@@ -263,7 +261,6 @@ let main = async () => {
         console.log(amountToTrade)
         await executeFlashLoan(uniswapPriceCalc3.token0Trade,uniswapPriceCalc3.token1Trade,direction,uniswapPriceCalc3.poolFee,amountToTrade,0,50000000000)
         await tokenWithdraw(uniswapPriceCalc3.token0Trade)
-        process.exit()
     }
 
     // Write log file for liveness check in Kubernetes cluster
