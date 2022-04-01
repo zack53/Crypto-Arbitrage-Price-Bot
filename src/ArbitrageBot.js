@@ -7,6 +7,7 @@ const AaveFlashLoan = require('./artifacts/contracts/AaveFlashLoanV3.sol/AaveFla
 const { WETH, WBTC, APE, ERC20ABI, UniPool1Address, UniPool2Address, UniPool3Address, SushiPair1Address, SushiPair2Address, SushiPair3Address, AaveFlashLoanAddress } = require('./EVMAddresses/evmAddresses')
 const { default: BigNumber } = require('bignumber.js')
 const {getPercentDifference, getTokenDirection, wrapToken, sendToken, getWalletEthBalance, getPolygonGasPrice} = require('./util/ArbitrageUtil')
+const fs = require('fs')
 
 const web3 = new Web3(new HDWalletProvider(process.env.PRIVATE_KEY,process.env.RPC_URL))
 
@@ -35,7 +36,6 @@ const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
 const APEContract = new web3.eth.Contract(ERC20ABI, APE)
 
 let loopCounter = 0
-//const AaveFlashLoanAddress = '0xD494FA95f4C032ed3445a758D30324EE18A3335f'
 const AaveFlashLoanContract = new web3.eth.Contract(AaveFlashLoan.abi, AaveFlashLoanAddress)
 
 let displayTokenInfo = () =>{
@@ -84,6 +84,7 @@ let tokenWithdraw = async(token0) => {
         process.exit()
     }
 }
+
 let main = async () => {
     if (isPolling == false){
 
@@ -144,7 +145,7 @@ let main = async () => {
             process.exit()
         }
 
-
+        fs.writeFileSync('./tmp/healthcheck.log','running')
         isPolling = false
         loopCounter += 1
     }
