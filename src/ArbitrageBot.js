@@ -256,8 +256,6 @@ let main = async () => {
         console.log('pair3')
         let direction = getTokenDirection(uniPrice3,sushiPrice3, !pair3AavePool)
         console.log(direction)
-        console.log(!pair3AavePool)
-        console.log(uniswapPriceCalc3.token0Trade)
         let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc3.token0TradeDecimals)).dividedBy(4).toFixed(0)
         console.log(amountToTrade)
         await executeFlashLoan(uniswapPriceCalc3.token0Trade,uniswapPriceCalc3.token1Trade,direction,uniswapPriceCalc3.poolFee,amountToTrade,0,50000000000)
