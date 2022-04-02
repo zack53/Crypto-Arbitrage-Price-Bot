@@ -24,7 +24,7 @@ spec:
             command:
             - rm
             - tmp/healthcheck.log
-          initialDelaySeconds: 45
-          periodSeconds: 45
+          initialDelaySeconds: 25
+          periodSeconds: 25
       imagePullSecrets:
         - name: crypto-arbitrage-bot-nodejs

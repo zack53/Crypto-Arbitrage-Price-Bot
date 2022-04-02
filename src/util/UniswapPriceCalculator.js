@@ -157,7 +157,7 @@ class UniswapV3PriceCalculator{
      */
     async getPairPrice(){
         // We initialize all of the data if the price calc direction has not been set
-        if(this.priceCalculationDirection  == ''){
+        if(this.priceCalculationDirection  === ''){
             await this.setPoolTokenInfo()
             await this.setPriceCalculationDirection()
             this.setTokenDirectionForTrade()

@@ -8,7 +8,9 @@ The Arbitrage bot will be making use of Aave Flash Loan V3 to maximize potential
 I want to be able to use this Crypto Arbitrage Price Bot to identify arbitrage opportunities and call a flash loan using Aave V3 Flash Loan contracts. This flash loan contract will then borrow a token from a lender, make the transfer on one exchange to a different token i.e. from token0 to token1. Then, I will go to another exchange in the contract and transfer from token1 back to token0 before repaying the loan. The Solidity smart contracts have been tested and deployed. I am working on getting the Arbitrage identifier code to work better.
 
 ## First successful Flash Loan in production
-The first successful Flash Loan in production can be found at the [this transaction](https://polygonscan.com/tx/0xb94b2e6abec1adad5a2bacf36168d6aabfb6c10ea89619f3af1d1d92006503c4)
+The first successful Flash Loan in production can be found at [this transaction](https://polygonscan.com/tx/0xb94b2e6abec1adad5a2bacf36168d6aabfb6c10ea89619f3af1d1d92006503c4)
+
+The second successful Flash Loan in production can be found at [this transaction](https://polygonscan.com/tx/0x19c91a6291f59140637d77fc3cfe02f260357a77fd138a3971b175d9d69552b4)
 
 ## Deployed Contracts
 
