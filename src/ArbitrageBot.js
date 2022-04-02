@@ -292,7 +292,7 @@ let main = async () => {
     // the functions needed to determine and
     // set the direction.
     if(!aaveSetDirection){
-        determineAaveLoanTokenDirection()
+        await determineAaveLoanTokenDirection()
         setTokenDirectionForAaveLoan()
         // Sets aaveSetDirection to true so we don't recalculate
         // token direction for Aave every polling iteration
