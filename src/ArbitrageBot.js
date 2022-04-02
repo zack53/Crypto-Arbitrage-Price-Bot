@@ -96,6 +96,7 @@ let  executeFlashLoan = async (token0, token1, direction, poolFee, amountToTrade
             from: process.env.ACCOUNT,
             gasPrice: await getPolygonGasPrice('fast')
         })
+        await tokenWithdraw(token0)
     }catch(error){
         console.log('Flash Loan execution error')
         console.log(error)
@@ -131,6 +132,7 @@ let main = async () => {
 
     isPolling = true
     try{
+        
         uniPrice = await uniswapPriceCalc.getPairPrice()
         uniPrice2 = await uniswapPriceCalc2.getPairPrice()
         uniPrice3 = await uniswapPriceCalc3.getPairPrice()
@@ -242,7 +244,6 @@ let main = async () => {
         let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc.token0TradeDecimals)).dividedBy(4).toString()
         console.log(amountToTrade)
         await executeFlashLoan(uniswapPriceCalc.token0Trade,uniswapPriceCalc.token1Trade,direction,uniswapPriceCalc.poolFee,amountToTrade,0,50000000000)
-        await tokenWithdraw(uniswapPriceCalc.token0Trade)
     }
     if(pair2Dif >= 2){
         console.log('pair2')
@@ -251,16 +252,16 @@ let main = async () => {
         let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc2.token0TradeDecimals)).dividedBy(4).toString()
         console.log(amountToTrade)
         await executeFlashLoan(uniswapPriceCalc2.token0Trade,uniswapPriceCalc2.token1Trade,direction,uniswapPriceCalc2.poolFee,amountToTrade,0,50000000000)
-        await tokenWithdraw(uniswapPriceCalc2.token0Trade)
     }
-    if(pair3Dif >= 2){
+    if(pair3Dif >= 1){
         console.log('pair3')
         let direction = getTokenDirection(uniPrice3,sushiPrice3, !pair3AavePool)
         console.log(direction)
-        let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc3.token0TradeDecimals)).dividedBy(4).toString()
+        console.log(!pair3AavePool)
+        console.log(uniswapPriceCalc3.token0Trade)
+        let amountToTrade = BigNumber(1).shiftedBy(parseInt(uniswapPriceCalc3.token0TradeDecimals)).dividedBy(6).toFixed(0)
         console.log(amountToTrade)
         await executeFlashLoan(uniswapPriceCalc3.token0Trade,uniswapPriceCalc3.token1Trade,direction,uniswapPriceCalc3.poolFee,amountToTrade,0,50000000000)
-        await tokenWithdraw(uniswapPriceCalc3.token0Trade)
     }
 
     // Write log file for liveness check in Kubernetes cluster
