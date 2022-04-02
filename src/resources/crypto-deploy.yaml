@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: crypto-arb-bot
-        image: registry.digitalocean.com/crypto-arbitrage-bot-nodejs/crypto-arb-bot:v1.1
+        image: registry.digitalocean.com/crypto-arbitrage-bot-nodejs/crypto-arb-bot:v1.3
         command: ["/bin/sh"]
         args: ["-c","node ArbitrageBot.js"]
         livenessProbe:
