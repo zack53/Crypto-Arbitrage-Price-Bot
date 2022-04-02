@@ -19,10 +19,6 @@ class UniswapV3PriceCalculator{
 
     }
 
-    getOriginalPrice(){
-        return this.originalPairPrice
-    }
-
     /**
      * Gets UniSwap pool address based on input parameters
      * @param {*} tokenA 

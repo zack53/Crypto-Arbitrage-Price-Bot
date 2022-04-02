@@ -80,7 +80,7 @@ let displayTokenInfo = () =>{
 }
 
 /**
- * Flash loan execution method. Needs to be moved to the ArbitrageBot.js file
+ * Flash loan execution method.
  * @param {*} token0 
  * @param {*} token1 
  * @param {*} direction 
@@ -104,8 +104,7 @@ let  executeFlashLoan = async (token0, token1, direction, poolFee, amountToTrade
 }
 
 /**
- * Token withdraw method. Needs to be moved to the ArbitrageUtil.js
- * file.
+ * Token withdraw method. 
  * @param {*} token0 
  */
 let tokenWithdraw = async(token0) => {
@@ -129,8 +128,12 @@ let main = async () => {
     if (isPolling){
         return
     }
-
     isPolling = true
+
+    // Tries to get pair price from UniSwap and 
+    // SushiSwap and then does a calculation to
+    // determine the percent they differ from 
+    // each  other.
     try{
         uniPrice = await uniswapPriceCalc.getPairPrice()
         uniPrice2 = await uniswapPriceCalc2.getPairPrice()
@@ -149,10 +152,12 @@ let main = async () => {
     }
 
     // Need to determine if the assets are available to borrow from Aave
-    // We will exit the process if neither are found. If one is found,
-    // we will alter the decimals of the trade and swap token0Trade
-    // to be token1Trade. This way we can start with a token that Aave
-    // has reserves for. 
+    // by calling the getATokenTotalSupply on the Aave Data provider.
+    // We check the token0Trade first to see if any tokens are available
+    // for loan, and if this check fails, we try to call the token1Trade
+    // in the catch blocks. We stop the process if both tokens are not
+    // available for a loan. We set true / false statements to be used
+    // to determine starting token below. 
     if(!aaveSetDirection){
         try{
             await AaveDataProvder.methods.getATokenTotalSupply(uniswapPriceCalc.token0Trade).call()
@@ -193,6 +198,7 @@ let main = async () => {
                 process.exit()
             }
         }
+
         // We have to alter the current information to be on the
         // correct side now that we know which side the token needs
         // to be for a successful loan from Aave.
@@ -225,6 +231,8 @@ let main = async () => {
             uniswapPriceCalc3.token1TradeDecimals = tempDecimal
         
         }
+        // Sets direction to true so we don't recalculate
+        // every polling iteration
         aaveSetDirection = true
     }
 
