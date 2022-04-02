@@ -124,7 +124,7 @@ let tokenWithdraw = async(token0) => {
  * calculates percent difference for flash loan
  * execution logic.
  */
-let getTokenInfoFromDefiExchanges = async () => {
+let getPriceInfoFromDefiExchanges = async () => {
     try{
         uniPrice = await uniswapPriceCalc.getPairPrice()
         uniPrice2 = await uniswapPriceCalc2.getPairPrice()
@@ -281,7 +281,7 @@ let main = async () => {
     // SushiSwap and then does a calculation to
     // determine the percent they differ from 
     // each  other.
-    await getTokenInfoFromDefiExchanges()
+    await getPriceInfoFromDefiExchanges()
 
     // Displays table information roughly every 30 seconds
     if(loopCounter%10==0){
@@ -292,7 +292,7 @@ let main = async () => {
     // the functions needed to determine and
     // set the direction.
     if(!aaveSetDirection){
-        determineAaveLoanTokenDirection()
+        await determineAaveLoanTokenDirection()
         setTokenDirectionForAaveLoan()
         // Sets aaveSetDirection to true so we don't recalculate
         // token direction for Aave every polling iteration
