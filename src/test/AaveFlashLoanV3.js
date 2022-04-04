@@ -13,21 +13,21 @@ const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
 
 // Vanilla Mocha test. Increased compatibility with tools that integrate Mocha.
 describe( "AaveFlashLoanV3 contract", function () {
-  let accounts;
+  let accounts
   let aaveFlashLoan
   before(async function () {
-    accounts = await web3.eth.getAccounts();
+    accounts = await web3.eth.getAccounts()
     //Checks to see if the first account has ETH
     let balance = await web3.eth.getBalance(accounts[0])
     assert.notEqual(balance, 0)
     //deploy contract
-    aaveFlashLoan = await AaveFlashLoan.new(AaveILendingPoolAddressesProviderv3, accounts[0], UniSwapV3RouterAddress, SushiSwapV2RouterAddress);
-    //const gasEstimate = await aaveFlashLoan.createInstance.estimateGas();
-  });
+    aaveFlashLoan = await AaveFlashLoan.new(AaveILendingPoolAddressesProviderv3, accounts[0], UniSwapV3RouterAddress, SushiSwapV2RouterAddress)
+    //const gasEstimate = await aaveFlashLoan.createInstance.estimateGas()
+  })
 
   it("Should deploy with the correct address", async function () {
     assert.equal(await aaveFlashLoan.ADDRESSES_PROVIDER(),AaveILendingPoolAddressesProviderv3)
-  });
+  })
 
   it('Should borrow WETH using UniSwap V3 first.', async function () {
     let wethAmountToTransfer = 15
@@ -63,7 +63,7 @@ describe( "AaveFlashLoanV3 contract", function () {
     let wethContractBal = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
     if(wethContractBal > 0){
       try{
-        await aaveFlashLoan.withdrawERC20Token(WETH, {from: accounts[1]});
+        await aaveFlashLoan.withdrawERC20Token(WETH, {from: accounts[1]})
       }catch(error){}
       let wethContractBalAfter = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
       assert.equal(wethContractBal,wethContractBalAfter)
@@ -75,7 +75,7 @@ describe( "AaveFlashLoanV3 contract", function () {
   it('Should withdraw all WETH token.', async function () {
     let wethContractBal = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
     if(wethContractBal > 0){
-      await aaveFlashLoan.withdrawERC20Token(WETH);
+      await aaveFlashLoan.withdrawERC20Token(WETH)
     }
     let wethContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
     assert.equal(wethContractBalAfterWithdraw, 0)
@@ -84,20 +84,20 @@ describe( "AaveFlashLoanV3 contract", function () {
   it('Should withdraw all WBTC token.', async function () {
     let wbtcContractBal = await WBTCContract.methods.balanceOf(aaveFlashLoan.address).call()
     if(wbtcContractBal > 0){
-      await aaveFlashLoan.withdrawERC20Token(WBTC);
+      await aaveFlashLoan.withdrawERC20Token(WBTC)
     }
     let wbtcContractBalAfterWithdraw = await WETHContract.methods.balanceOf(aaveFlashLoan.address).call()
     assert.equal(wbtcContractBalAfterWithdraw, 0)
   })
 
   it('Should transfer ownership.', async function () {
-    await aaveFlashLoan.transferOwnership(accounts[1]);
+    await aaveFlashLoan.transferOwnership(accounts[1])
     assert.equal(await aaveFlashLoan.getOwner(), accounts[1])
   })
 
   it('Should fail to transfer ownership.', async function () {
     try{
-      await aaveFlashLoan.transferOwnership(accounts[2]);
+      await aaveFlashLoan.transferOwnership(accounts[2])
     }catch(error){}
     assert.equal(await aaveFlashLoan.getOwner(), accounts[1])
   })
