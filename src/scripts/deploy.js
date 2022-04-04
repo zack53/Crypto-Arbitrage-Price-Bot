@@ -1,4 +1,4 @@
-const { ethers, web3 } = require("hardhat");
+const { ethers, web3 } = require("hardhat")
 const { AaveILendingPoolAddressesProviderv3, UniSwapV3RouterAddress, SushiSwapV2RouterAddress, ChainLinkMaticToUSDTAddress } = require('../EVMAddresses/evmAddresses')
 
 /**
@@ -18,7 +18,7 @@ async function main() {
   let flashLoanAddress = await aaveFlashLoanV3Factory.getFlashLoanContract(accounts[0])
 
   // Log deployed contract addresses to console
-  console.log("AaveFlashLoanV3Factory deployed to:", aaveFlashLoanV3Factory.address);
+  console.log("AaveFlashLoanV3Factory deployed to:", aaveFlashLoanV3Factory.address)
   console.log('AaveFlashLoanV3 deployed to:', flashLoanAddress)
 }
 
@@ -26,7 +26,7 @@ async function main() {
 main()
   .then(() => process.exit(0))
   .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+    console.error(error)
+    process.exit(1)
+  })
 

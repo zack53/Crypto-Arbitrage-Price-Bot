@@ -11,20 +11,20 @@ const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
 
 // Vanilla Mocha test. Increased compatibility with tools that integrate Mocha.
 describe("UniSwapSingleSwap contract", function () {
-  let accounts;
+  let accounts
   let uniSwapSingleSwap
   before(async function () {
-    accounts = await web3.eth.getAccounts();
+    accounts = await web3.eth.getAccounts()
     //Checks to see if the first account has ETH
     let balance = await web3.eth.getBalance(accounts[0])
     assert.notEqual(balance, 0)
     //deploy contract
-    uniSwapSingleSwap = await UniSwapSingleSwap.new(UniSwapV3RouterAddress);
-  });
+    uniSwapSingleSwap = await UniSwapSingleSwap.new(UniSwapV3RouterAddress)
+  })
 
   it("Should deploy with the correct address", async function () {
     assert.equal(await uniSwapSingleSwap.swapRouter(), UniSwapV3RouterAddress)
-  });
+  })
 
   it('Should swap token values WETH for WBTC', async function () {
     let wethAmountToTransfer = 15

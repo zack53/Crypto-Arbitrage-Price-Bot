@@ -11,15 +11,15 @@ const WBTCContract = new web3.eth.Contract(ERC20ABI, WBTC)
 
 // Vanilla Mocha test. Increased compatibility with tools that integrate Mocha.
 describe( "SushiSwapSingleSwap contract", function () {
-  let accounts;
+  let accounts
   let sushiSwapSingleSwap
   before(async function () {
-    accounts = await web3.eth.getAccounts();
+    accounts = await web3.eth.getAccounts()
     //Checks to see if the first account has ETH
     let balance = await web3.eth.getBalance(accounts[0])
     assert.notEqual(balance, 0)
     //deploy contract
-    sushiSwapSingleSwap = await SushiSwapSingleSwap.new(SushiSwapV2RouterAddress);
+    sushiSwapSingleSwap = await SushiSwapSingleSwap.new(SushiSwapV2RouterAddress)
   })
 
   it("Should deploy with the correct address", async function () {
